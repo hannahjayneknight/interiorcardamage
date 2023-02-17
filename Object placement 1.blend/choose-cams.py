@@ -59,6 +59,52 @@ def random_cam2( CAMcollection ):
     bpy.context.scene.camera = bpy.data.objects[ cam.name ]
     bpy.data.objects[ "Plane" ].constraints["Child Of"].target = bpy.data.objects[ cam.name ]
     randomly_change_background()
+    
+    
+def random_cam3( CAMcollectionarr ):
+    '''
+        Choose a random camera from an array of camera collections and activate the camera.
+        
+        Updates the position of the background plane so it is in view of the new camera.
+    '''
+    #choose collection from arr
+    randomIndex1 = randint(0,len(CAMcollectionarr) - 1)
+    CAMcollection = CAMcollectionarr[ randomIndex1 ]
+    #choose random camera from collection
+    col = bpy.data.collections[ CAMcollection ]
+    randomIndex2 = randint(0,len(col.objects) - 1)
+    cam = col.objects[randomIndex2]
+    bpy.context.scene.camera = bpy.data.objects[ cam.name ]
+    bpy.data.objects[ "Plane" ].constraints["Child Of"].target = bpy.data.objects[ cam.name ]
+    randomly_change_background()
+    
+def getallCAMs():
+    '''
+    Returns a dictionary with all cameras and what view of the car they hold (left, right or centre 
+    
+    where left is the driver side). 
+    '''
+    CAMs = {
+        'camsL' : [],
+        'camsR' : [],
+        'camsC' : []
+    }
+    
+    for cam_coll in bpy.data.collections['CAMsLEFT'].children:
+        CAMs[ 'camsL' ].append(cam_coll.name)
+        
+    for cam_coll in bpy.data.collections['CAMsRIGHT'].children:
+        CAMs[ 'camsR' ].append(cam_coll.name)
+        
+    for cam_coll in bpy.data.collections['CAMsCENTRE'].children:
+        CAMs[ 'camsC' ].append(cam_coll.name)
+        
+    return CAMs
+
+
+
+
+
 
 shots = {
     'PassengerSeat' : 'CAMs-PassengerSeat',
@@ -70,5 +116,38 @@ shots = {
     'RearCarpetR' : 'CAMs-RearCarpetR',
     'RearShelf' : 'CAMs-RearShelf',
 }
+
+shots2 = {
+    'PassengerSeat' : [ 'CAMs-PassengerSeat' ],
+    'RearSeats' : [ 'CAMs-RearSeatsR' ], 
+    'PassengerCarpet' : [ 'CAMs-PassengerCarpet' ],
+    'Dashboard' : [ 'CAMs-DashboardL', 'CAMs-DashboardC', 'CAMs-DashboardR' ],
+    'DriverCarpet' : [ 'CAMs-DriverCarpet' ],
+    'RearCarpetL' : [ 'CAMs-RearCarpetL' ],
+    'RearCarpetR' : [ 'CAMs-RearCarpetR' ],
+    'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
+}
         
-random_cam2('CAMs-RearSeats')
+
+    
+
+active_cam_coll = bpy.context.scene.camera.users_collection[0].name
+CAMs = getallCAMs()
+if (active_cam_coll in CAMs['camsL']):
+    print("Left cam")
+        
+if (active_cam_coll in CAMs['camsR']):
+    print("Right cam")
+    
+if (active_cam_coll in CAMs['camsC']):
+    print("Centre cam")
+
+
+''' -------------------OLD-------------------------'''
+#random_cam2('CAMs-RearSeats')
+#print(CAMs)
+
+#random_cam3( shots2[ 'RearSeats'] )
+
+#for key in shots2:
+#    random_cam3( shots[key] )
