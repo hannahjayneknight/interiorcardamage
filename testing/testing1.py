@@ -1,7 +1,8 @@
 import bpy
-from random import randint
+import random
 from pathlib import Path
 from os import listdir
+from mathutils import Euler, Color
 
 '''
 ---------------------------  FUNCTIONS  --------------------------------
@@ -19,7 +20,7 @@ def add_particles(surface_obj, obj):
         remove_particle_system(surface_obj)
     surface_obj.modifiers.new("random_obj", type='PARTICLE_SYSTEM')
     part = surface_obj.particle_systems[0]
-    part.seed = randint(0, 100000000)
+    part.seed = int(random.random()*100000000)
     settings = part.settings
     settings.count = 1
     settings.particle_size = 0.1
@@ -45,24 +46,27 @@ def random_cam( CAMcollectionarr ):
         Updates the position of the background plane so it is in view of the new camera.
     '''
     #choose collection from arr
-    randomIndex1 = randint(0,len(CAMcollectionarr) - 1)
+    randomIndex1 = int(random.random()*(len(CAMcollectionarr) - 1))
     CAMcollection = CAMcollectionarr[ randomIndex1 ]
     #choose random camera from collection
     col = bpy.data.collections[ CAMcollection ]
-    randomIndex2 = randint(0,len(col.objects) - 1)
+    randomIndex2 = int(random.random()*(len(col.objects) - 1))
     cam = col.objects[randomIndex2]
     bpy.context.scene.camera = bpy.data.objects[ cam.name ]
     bpy.data.objects[ "Plane" ].constraints["Child Of"].target = bpy.data.objects[ cam.name ]
 
 def randomly_change_background():
-    directory = "C:/Users/hanna/OneDrive - Imperial College London/Year 4 work/Master's/Car interior/Backgrounds/"
+    directory = "../Backgrounds/"
     background_images = listdir(directory)
     background_images = listdir(directory)
-    randomIndex = randint(0, len(background_images)-1)
+    randomIndex = int(random.random()*(len(background_images)-1))
     background = bpy.data.images.load(str(directory + background_images[randomIndex]))
     bpy.data.materials['Background'].node_tree.nodes['Image Texture'].image = background
     
 def makevisible( arr ):
+    '''
+    Makes everything in the arr visible when viewing and rendering.
+    '''
     for obj in arr:
         obj = bpy.context.scene.objects[ obj ]
         obj.hide_render = False
@@ -70,11 +74,26 @@ def makevisible( arr ):
         obj.hide_set(False)
         
 def makeINvisible( arr ):
+    '''
+    Makes everything in the arr invisible when viewing and rendering.
+    '''
     for obj in arr:
         obj = bpy.context.scene.objects[ obj ]
         obj.hide_render = True
         obj.hide_viewport = True
         obj.hide_set(True)
+        
+def random_bool():
+    '''
+    Generates a 0 or 1 randomly using the random.random() function (so we avoid using
+    the slow random.randint() function).
+    '''
+    my_random_float = random.random()
+    if my_random_float > .5:
+        my_rand_int = 1
+    else:
+        my_rand_int = 0
+    return my_rand_int
     
 def togglesidecar( side ):
     # left/ driver side of car
@@ -112,16 +131,16 @@ def togglesidecar( side ):
     
     # Set all objects on desired side to be visible
     if (side=='L'):
-        if (randint(0, 1) == 1):
+        if (random_bool() == 1):
             makevisible(L)
     if (side=='R'):
-        if (randint(0, 1) == 1):
+        if (random_bool() == 1):
             makevisible(R)
     # if camera in the centre, we make both sides visible
     if (side=='C'):
-        if (randint(0, 1) == 1):
+        if (random_bool() == 1):
             makevisible(L)
-        if (randint(0, 1) == 1):
+        if (random_bool() == 1):
             makevisible(R)
 
 def getallCAMs():
@@ -146,6 +165,31 @@ def getallCAMs():
         CAMs[ 'camsC' ].append(cam_coll.name)
         
     return CAMs
+
+def getallObjs():
+    '''
+    Returns an array with all the random objects in the collection "Objs" which will spawn 
+    in the car. 
+    '''
+    objs = []
+    for object in bpy.data.collections['OBJS'].objects:
+        objs.append(object.name)
+    return objs
+
+def change_colorramp( obj ):
+    """ Changes the 'color' value of an object's ColorRamp. 
+    """
+    if "ColorRamp" in obj.active_material.node_tree.nodes:
+        colorramp = obj.active_material.node_tree.nodes["ColorRamp"]
+        #if (colorramp
+        
+        color = Color()
+        H = random.random()
+        S = random.random()
+        V = random.random()
+        color.hsv = (H, S, V)
+        rgba = [color.r, color.g, color.b, 1]
+        colorramp.color_ramp.elements[1].color = rgba
   
 
 '''
@@ -169,6 +213,11 @@ shots_test = {
     'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
 }
 
+shots_test2 = {
+    'RearCarpetR' : [ 'CAMs-RearCarpetR' ]
+}
+
+
 #camera dictionary
 CAMs = getallCAMs()
 
@@ -179,42 +228,46 @@ CAMs = getallCAMs()
 
 
 
-obj_name = 'KnitCap'
+all_objects = getallObjs()
+# make all objects invisible at the start
+makeINvisible( all_objects )
 
+
+output_path = Path("../Data/testing")
+
+# choose a random object
+obj_num = int(random.random()*(len(all_objects)-1))
+obj_name = all_objects[ obj_num ]
 obj = bpy.data.objects[ obj_name ]
-output_path = Path("C:/Users/hanna/OneDrive - Imperial College London/Year 4 work/Master's/Car interior/Data generation temp")
+# choose a random surface
+surfaces = list( shots )
+surf_num = int(random.random()*(len(surfaces)-1))
+surface_obj = bpy.data.objects[ surfaces[ surf_num ] ]
 
-count = 0
+# add random object to surface
+add_particles(surface_obj, obj)
+# change camera angle 
+random_cam( shots[ surfaces[ surf_num ] ] )
+# change background
+randomly_change_background()
+# change colour of object
+change_colorramp( obj)
 
-for key in shots_test:
-    # update surface_obj
-    surface_obj = bpy.data.objects[ key ]     
+# the current active camera's collection
+active_cam_coll = bpy.context.scene.camera.users_collection[0].name
 
-    for y in range(3):
-        # add random object to scene
-        add_particles(surface_obj, obj)
-        # change camera angle 
-        random_cam( shots[key] )
-        #change background
-        randomly_change_background()
+# randomly toggle doors open or closed depending on which camera is active
+if (active_cam_coll in CAMs['camsL']):
+    togglesidecar('R')
         
-        # the current active camera's collection
-        active_cam_coll = bpy.context.scene.camera.users_collection[0].name
-        
-        # randomly toggle doors open or closed depending on which camera is active
-        if (active_cam_coll in CAMs['camsL']):
-            togglesidecar('R')
-                
-        if (active_cam_coll in CAMs['camsR']):
-            togglesidecar('L')
-            
-        if (active_cam_coll in CAMs['camsC']):
-            togglesidecar('C')
+if (active_cam_coll in CAMs['camsR']):
+    togglesidecar('L')
+    
+if (active_cam_coll in CAMs['camsC']):
+    togglesidecar('C')
 
-        # Update file path and render
-        bpy.context.scene.render.filepath = str( output_path / obj_name / f'{str(count).zfill(6)}.png')
-        bpy.ops.render.render(write_still=True)
-        count += 1
-        
-    # remove final particle system so that it does not appear in next round
-    remove_particle_system(surface_obj)
+# Update file path and render
+bpy.context.scene.render.filepath = str( output_path / obj_name / f'{str(int(random.random()*1000000)).zfill(6)}.png')
+bpy.ops.render.render(write_still=True)
+
+remove_particle_system(surface_obj)
