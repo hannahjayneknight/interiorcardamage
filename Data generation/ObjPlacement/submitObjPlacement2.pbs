@@ -1,5 +1,5 @@
 #PBS -l walltime=04:00:00
-#PBS -l select=1:ncpus=1:mem=24gb:ngpus=1:gpu_type=RTX6000
+#PBS -l select=4:ncpus=1:mem=24gb:ngpus=8:gpu_type=RTX6000
 
 module purge
 module add tools/prod
@@ -7,4 +7,4 @@ module add Blender/3.4.1-linux-x86_64-CUDA-11.7.0
 module add Python/3.10.4-GCCcore-11.3.0
 
 cd $PBS_O_WORKDIR
-blender Objectplacement1.blend --background --python objplacement1.py
+blender -b Objectplacement1.blend -t 32 --python objplacement1.py -- --cycles-device CUDA

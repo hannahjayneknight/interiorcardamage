@@ -59,7 +59,7 @@ def randomly_change_background():
     directory = "../Backgrounds/"
     background_images = listdir(directory)
     background_images = listdir(directory)
-    randomIndex = int(random.ra()*(len(background_images)-1))
+    randomIndex = int(random.random()*(len(background_images)-1))
     background = bpy.data.images.load(str(directory + background_images[randomIndex]))
     bpy.data.materials['Background'].node_tree.nodes['Image Texture'].image = background
     

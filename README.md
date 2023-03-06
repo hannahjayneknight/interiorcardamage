@@ -7,6 +7,9 @@ Note: All blender files and renders (data) is exported to my OneDrive account si
 ### ```testing```
 This was an initial test to get used to Imperial's HPC, make sure blender would run on the HPC and output into the desired folder.
 
+### ```renaming```
+Whenever I need to walk through a folder and rename the images (eg because I am merging folders).
+
 ### ```Object placement 1.blend```
 All the python scripts in my ```Object placement 1.blend``` file. This was the first file I worked on for object placemement on my own laptop, so there are a lot of drafts as I figure out how I want the script to run.
 
