@@ -226,7 +226,7 @@ makeINvisible( all_objects )
 array_index_count = 0
 array_index = int(os.environ['PBS_ARRAY_INDEX'])
 
-output_path = Path("../Data2/DarkInterior")
+output_path = Path("../Data/DarkInterior")
 
 
 for obj_name in all_objects:
