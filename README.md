@@ -43,3 +43,11 @@ Folder with code for object placement that has been uploaded and run on the HPC.
 
 
 ## Model building
+
+### Image classifier
+
+### Image detection
+
+### Transformer
+
+### Building on pre-trained models

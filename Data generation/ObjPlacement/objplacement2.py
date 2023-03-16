@@ -22,6 +22,7 @@ def add_particles(surface_obj, obj):
     surface_obj.modifiers.new("random_obj", type='PARTICLE_SYSTEM')
     part = surface_obj.particle_systems[0]
     part.seed = int(random.random()*100000000)
+    part.vertex_group_density = "scatter"
     settings = part.settings
     settings.count = 1
     settings.particle_size = 0.1
@@ -226,12 +227,16 @@ makeINvisible( all_objects )
 array_index_count = 0
 array_index = int(os.environ['PBS_ARRAY_INDEX'])
 
-output_path = Path("../Data/DarkInterior")
+output_path = Path("../Data")
 
 
 for obj_name in all_objects:
-    # reset count for each object
-    count = 0
+    # current count for each object
+    DIR = str( output_path + "/" + obj_name ) 
+    if (os.path.isdir(DIR) == True):
+        count = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+    else:
+        count = 0
     # loop through all objects
     obj = bpy.data.objects[ obj_name ]
 
