@@ -8,4 +8,4 @@ module add Blender/3.4.1-linux-x86_64-CUDA-11.7.0
 module add Python/3.10.4-GCCcore-11.3.0
 
 cd $PBS_O_WORKDIR
-blender -b Objectplacement1-cream.blend -t 64 --python objplacement2-cream.py -- --cycles-device CUDA
+blender -b Objectplacement1-cream.blend -t 64 --python objplacement2.py -E CYCLES -- --cycles-device CUDA

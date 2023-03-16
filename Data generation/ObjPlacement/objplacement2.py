@@ -227,12 +227,13 @@ makeINvisible( all_objects )
 array_index_count = 0
 array_index = int(os.environ['PBS_ARRAY_INDEX'])
 
-output_path = Path("../Data")
+output_str = "../Data"
+output_path = Path(output_str)
 
 
 for obj_name in all_objects:
     # current count for each object
-    DIR = str( output_path + "/" + obj_name ) 
+    DIR = str( output_str + "/" + obj_name ) 
     if (os.path.isdir(DIR) == True):
         count = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
     else:
