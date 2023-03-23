@@ -56,8 +56,8 @@ def random_cam( CAMcollectionarr ):
     bpy.context.scene.camera = bpy.data.objects[ cam.name ]
     bpy.data.objects[ "Plane" ].constraints["Child Of"].target = bpy.data.objects[ cam.name ]
 
-def randomly_change_background():
-    directory = "../Backgrounds/"
+def randomly_change_background( directory ):
+    #directory = "../Backgrounds/"
     background_images = listdir(directory)
     randomIndex = int(random.random()*(len(background_images)-1))
     background = bpy.data.images.load(str(directory + background_images[randomIndex]))
@@ -191,67 +191,3 @@ def change_colorramp( obj ):
         rgba = [color.r, color.g, color.b, 1]
         colorramp.color_ramp.elements[1].color = rgba
   
-
-'''
----------------------------  FOR REFERENCE  -----------------------------
-'''  
-
-#where particles spawn and their corresponding cameras
-shots = {
-    'PassengerSeat' : [ 'CAMs-PassengerSeat' ],
-    'RearSeats' : [ 'CAMs-RearSeatsR' ], 
-    'PassengerCarpet' : [ 'CAMs-PassengerCarpet' ],
-    'Dashboard' : [ 'CAMs-DashboardL', 'CAMs-DashboardC', 'CAMs-DashboardR' ],
-    'DriverCarpet' : [ 'CAMs-DriverCarpet' ],
-    'RearCarpetL' : [ 'CAMs-RearCarpetL' ],
-    'RearCarpetR' : [ 'CAMs-RearCarpetR' ],
-    'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
-}
-
-
-#camera dictionary
-CAMs = getallCAMs()
-
-
-'''
----------------------------  SCRIPT HERE  -------------------------------
-'''
-
-
-
-
-output_str = "../Data/clear"
-output_path = Path(output_str)
-
-
-DIR = str( output_str + "/" ) 
-if (os.path.isdir(DIR) == True):
-    count = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
-else:
-    count = 0
-
-for key in shots:   
-
-    for y in range(25):
-        # change camera angle 
-        random_cam( shots[key] )
-        # change background
-        randomly_change_background()
-        
-        # the current active camera's collection
-        active_cam_coll = bpy.context.scene.camera.users_collection[0].name
-        
-        # randomly toggle doors open or closed depending on which camera is active
-        if (active_cam_coll in CAMs['camsL']):
-            togglesidecar('R')
-                
-        if (active_cam_coll in CAMs['camsR']):
-            togglesidecar('L')
-            
-        if (active_cam_coll in CAMs['camsC']):
-            togglesidecar('C')
-
-        # Update file path and render
-        bpy.context.scene.render.filepath = str( output_str / f'{str(count).zfill(6)}.png')
-        bpy.ops.render.render(write_still=True)
-        count += 1
