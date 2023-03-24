@@ -5,7 +5,7 @@ Note: All blender files and renders (data) is exported to my OneDrive account si
 ## Data Generation
 
 ### ```testing```
-This was an initial test to get used to Imperial's HPC, make sure blender would run on the HPC and output into the desired folder.
+This was an initial test to get used to Imperial's HPC, make sure blender would run on the HPC and other testing purposes.
 
 ### ```renaming```
 Whenever I need to walk through a folder and rename the images (eg because I am merging folders).
@@ -16,10 +16,16 @@ All the python scripts in my ```Object placement 1.blend``` file. This was the f
 ### ```ObjPlacement```
 Folder with code for object placement that has been uploaded and run on the HPC. All files have 27 objects in and randomly spawn them within the car and change the object's colour where appropriate. It chooses a random camera angle and background.
 
+### ```Modules```
+Python modules I have generated for this project.
 
 ### ```LitterPlacement```
 
 ### ```SpawningMess```
+
+### ```EmptyCar```
+
+Scripts for generating images of an empty or "clear" car.
 
 ### Queued jobs
 
