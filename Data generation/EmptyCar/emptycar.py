@@ -252,6 +252,6 @@ for key in shots:
             togglesidecar('C')
 
         # Update file path and render
-        bpy.context.scene.render.filepath = str( output_str / f'{str(count).zfill(6)}.png')
+        bpy.context.scene.render.filepath = str( output_path / f'{str(count).zfill(6)}.png')
         bpy.ops.render.render(write_still=True)
         count += 1
