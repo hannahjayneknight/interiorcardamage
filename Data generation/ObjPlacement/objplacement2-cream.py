@@ -243,7 +243,7 @@ for obj_name in all_objects:
             # update surface_obj
             surface_obj = bpy.data.objects[ key ]     
 
-            for y in range(25):
+            for y in range(25): # for training = 25, testing = 6-7
                 # add random object to scene
                 add_particles(surface_obj, obj)
                 # change camera angle 
