@@ -53,39 +53,43 @@ for obj_name in all_objects:
     if array_index_count == array_index:
         
         # loop through car interior colour and change here
+        colours = ['brown', 'black', 'cream']
+        texture_dir = "../textures/Interior"
+        for colour in colours:
+            bm.change_car_colour(colour, texture_dir)
 
-        for key in shots:
-            # update surface_obj
-            surface_obj = bpy.data.objects[ key ]     
+            for key in shots:
+                # update surface_obj
+                surface_obj = bpy.data.objects[ key ]     
 
-            for y in range(5):
-                # add random object to scene
-                bm.add_particles(surface_obj, obj)
-                # change camera angle 
-                bm.random_cam( shots[key] )
-                # change background
-                dir = "../Backgrounds/"
-                bm.randomly_change_background( dir )
-                # change colour of object
-                bm.change_colorramp( obj)
-                
-                # the current active camera's collection
-                active_cam_coll = bpy.context.scene.camera.users_collection[0].name
-                
-                # randomly toggle doors open or closed depending on which camera is active
-                if (active_cam_coll in CAMs['camsL']):
-                    bm.togglesidecar('R')
-                        
-                if (active_cam_coll in CAMs['camsR']):
-                    bm.togglesidecar('L')
+                for y in range(5):
+                    # add random object to scene
+                    bm.add_particles(surface_obj, obj)
+                    # change camera angle 
+                    bm.random_cam( shots[key] )
+                    # change background
+                    dir = "../Backgrounds/"
+                    bm.randomly_change_background( dir )
+                    # change colour of object
+                    bm.change_colorramp( obj)
                     
-                if (active_cam_coll in CAMs['camsC']):
-                    bm.togglesidecar('C')
+                    # the current active camera's collection
+                    active_cam_coll = bpy.context.scene.camera.users_collection[0].name
+                    
+                    # randomly toggle doors open or closed depending on which camera is active
+                    if (active_cam_coll in CAMs['camsL']):
+                        bm.togglesidecar('R')
+                            
+                    if (active_cam_coll in CAMs['camsR']):
+                        bm.togglesidecar('L')
+                        
+                    if (active_cam_coll in CAMs['camsC']):
+                        bm.togglesidecar('C')
 
-                # Update file path and render
-                bpy.context.scene.render.filepath = str( output_path / obj_name / f'{obj_name}_{str(count).zfill(6)}.png')
-                bpy.ops.render.render(write_still=True)
-                count += 1
-                
-            # remove final particle system so that it does not appear in next round
-            bm.remove_particle_system(surface_obj)
+                    # Update file path and render
+                    bpy.context.scene.render.filepath = str( output_path / obj_name / f'{obj_name}_{str(count).zfill(6)}.png')
+                    bpy.ops.render.render(write_still=True)
+                    count += 1
+                    
+                # remove final particle system so that it does not appear in next round
+                bm.remove_particle_system(surface_obj)

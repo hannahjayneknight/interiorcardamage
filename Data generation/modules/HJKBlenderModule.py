@@ -219,4 +219,85 @@ def shots_test2():
         'RearCarpetR' : [ 'CAMs-RearCarpetR' ]
     }
     return shots_test2
+
+def change_car_colour(colour, dir):
+    car_nodes = {
+        'FrontSeatMat': 'FrontSeatBaseColour',
+        'RearSeatsMat': 'RearSeatsBaseColour',
+        'RearShelfMat': 'RearShelfBaseColour',
+        'DoorPanelFront': 'DoorPanelFrontBaseColour',
+        'DoorPanelRear': 'DoorPanelRearBaseColour',
+        'CenterConsole': 'CenterConsoleBaseColour',
+        'Steeringwheel': 'SteeringwheelBaseColour',
+        'Dashboard': 'DashboardBaseColour',
+    }
+    images = {
+        'FrontSeatBaseColour' : 
+            {
+                'brown':r'/Seats/Front/Front_Seat_Base_Color Brown.png',
+                'black':r'/Seats/Front/Front_Seat_Base_Color black.png',
+                'cream':r'/Seats/Front/Front_Seat_Base_Color Tan.png' 
+            },
+        'RearSeatsBaseColour':
+            {
+                'brown':r'/Seats/Rear/Rear Seats_Base_Color Brown.png',
+                'black':r'/Seats/Rear/Rear Seats_Base_Color Black.png',
+                'cream':r'/Seats/Rear/Rear Seats_Base_Color Tan.png' 
+            },
+        'RearShelfBaseColour':
+            {
+                'brown':r'/Shell/Shell_Base_Color BlueBrown.png',
+                'black':r'/Shell/Shell_Base_Color Black.png',
+                'cream':r'/Shell/Shell_Base_Color Tan.png' 
+            },
+        'DoorPanelFrontBaseColour':
+            {
+                'brown':r'/DoorPanels/Front/DoorPanelFront_Base_Color Brown.png',
+                'black':r'/DoorPanels/Front/DoorPanelFront_Base_Color Black.png',
+                'cream':r'/DoorPanels/Front/DoorPanelFront_Base_Color Tan.png'
+            },
+        'DoorPanelRearBaseColour':
+            {
+                'brown':r'/DoorPanels/Rear/DoorPanelRear_Base_Color Brown.png',
+                'black':r'/DoorPanels/Rear/DoorPanelRear_Base_Color Black.png',
+                'cream':r'/DoorPanels/Rear/DoorPanelRear_Base_Color Tan.png'
+            },
+        'CenterConsoleBaseColour':
+            {
+                'brown':r'/CenterConsole/CenterConsole_Base_Color Brown.png',
+                'black':r'/CenterConsole/CenterConsole_Base_Color Black.png',
+                'cream':r'/CenterConsole/CenterConsole_Base_Color Tan.png'
+            },
+        'SteeringwheelBaseColour':
+            {
+                'brown':r'/SteeringWheel/Steeringwheel_Base_Color Black.png',
+                'black':r'/SteeringWheel/Steeringwheel_Base_Color Black.png',
+                'cream':r'/SteeringWheel/Steeringwheel_Base_Color Tan.png'
+            },
+        'DashboardBaseColour':
+            {
+                'brown':r'/Dashboard/Dashboard_Base_Color Brown.png',
+                'black':r'/Dashboard/Dashboard_Base_Color BlackBlue.png',
+                'cream':r'/Dashboard/Dashboard_Base_Color Tan.png'
+            }
+    }
+    for key in car_nodes:
+    
+        mat = bpy.data.materials[ key ]
+        nodes = [n for n in mat.node_tree.nodes if n.type == 'TEX_IMAGE']
+        colour_node = [n for n in nodes if n.label == car_nodes[key]]
+
+        #get image
+        img_path = images[ car_nodes[key] ][ colour ]
+        img_path_short = os.path.basename(os.path.normpath(img_path))
+        full_path = dir + img_path 
+
+        if img_path in bpy.data.images:
+            image = bpy.data.images[ img_path_short ]
+        else:
+            image = bpy.data.images.load( full_path )
+
+
+        #set image node
+        colour_node[0].image = image
   
