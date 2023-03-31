@@ -1,10 +1,3 @@
-'''
-Goals for this script:
-- Generate data for all car colours using the Python API.
-- Use my own module for this project
-- Generate testing data
-'''
-
 import sys
 import bpy
 import random
@@ -25,7 +18,14 @@ shots = bm.shots()
 CAMs = bm.getallCAMs()
 
 '''
----------------------------  SCRIPT HERE  -------------------------------
+---------------------------  VARIABLES TO CHANGE  -----------------------
+'''
+output_str = "../testing/testingdata" # ../Data/train or test
+n = 6 # n=6 for test data, n=25 for train data
+
+
+'''
+---------------------------  SCRIPT HERE (DON'T CHANGE)  ------------------
 '''
 
 all_objects = bm.getallObjs()
@@ -33,8 +33,6 @@ all_objects = bm.getallObjs()
 bm.makeINvisible( all_objects )
 array_index_count = 0
 array_index = int(os.environ['PBS_ARRAY_INDEX'])
-
-output_str = "../Data/testing"
 output_path = Path(output_str)
 
 
@@ -62,7 +60,7 @@ for obj_name in all_objects:
                 # update surface_obj
                 surface_obj = bpy.data.objects[ key ]     
 
-                for y in range(5):
+                for y in range(n):
                     # add random object to scene
                     bm.add_particles(surface_obj, obj)
                     # change camera angle 
