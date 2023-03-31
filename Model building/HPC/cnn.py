@@ -14,8 +14,6 @@ import pathlib
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 
-print(device)
-
 transformer=transforms.Compose([
     transforms.Resize((150,150)),
     transforms.RandomHorizontalFlip(), # flips image with p=0.5 to augment data
@@ -36,9 +34,11 @@ test_loader=torch.utils.data.DataLoader(
     batch_size=32, shuffle=True
 )
 
+print('data loaded')
+
 root=pathlib.Path(train_path)
 classes=sorted([j.name.split('/')[-1] for j in root.iterdir()])
-print(classes)
+print('Classes: '+str(classes))
 
 #CNN Network
 

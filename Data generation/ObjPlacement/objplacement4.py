@@ -20,7 +20,7 @@ CAMs = bm.getallCAMs()
 '''
 ---------------------------  VARIABLES TO CHANGE  -----------------------
 '''
-output_str = "../testing/testingdata" # ../Data/train or test
+output_str = "../testing/testingdata" # ../Data/raw/train or test
 n = 6 # n=6 for test data, n=25 for train data
 
 

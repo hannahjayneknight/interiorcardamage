@@ -1,0 +1,48 @@
+'''
+Loop through a directory of images, compress them and resave to a new directory.
+
+Discovered the importance of this after realising the outputted image sizes from Blender 
+(i.e. my raw data) are all 2.40 MB!!! 
+'''
+
+from PIL import Image
+import os
+
+
+def compress( dir, new_dir ):
+    '''
+    dir is the directory with the raw image files in. 
+
+    new_dir is the directory where the compressed images will be saved
+
+    Size of my blender generated files: 
+        
+        1920 x 1080
+
+        72 dpi
+
+        32 bit
+
+        Size: 2-3MB 
+
+    '''
+    files = os.listdir( dir )
+
+    for index, file in enumerate(files): # loop through rough route directory
+
+        foo = Image.open(os.path.join(dir, file))
+        size = foo.size
+
+        # downsize the image with an ANTIALIAS filter (gives the highest quality)
+        foo = foo.resize((256, 256),resample=Image.LANCZOS)
+        
+
+        new_save_path = os.path.join(new_dir, ''.join([str(index).zfill(6), '.png']))
+
+        foo.save(new_save_path, optimize=True, quality=95) #  could try with quality=85
+
+
+dir = "C:/Users/hanna/Desktop/git/interiorcardamage/Data/test/KnitCap"
+new_dir = "C:/Users/hanna/Desktop/git/interiorcardamage/Data/compressed"
+
+compress( dir, new_dir )
