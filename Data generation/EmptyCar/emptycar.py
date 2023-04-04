@@ -50,7 +50,8 @@ for colour in colours:
             # change camera angle 
             bm.random_cam( shots[key] )
             # change background
-            bm.randomly_change_background()
+            dir = "../Backgrounds/"
+            bm.randomly_change_background( dir )
             
             # the current active camera's collection
             active_cam_coll = bpy.context.scene.camera.users_collection[0].name
