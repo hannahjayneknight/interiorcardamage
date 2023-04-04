@@ -12,7 +12,7 @@ import torchvision
 import pathlib
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(device)
+#print(device)
 
 transformer=transforms.Compose([
     transforms.Resize((150,150)),
@@ -34,11 +34,11 @@ test_loader=torch.utils.data.DataLoader(
     batch_size=32, shuffle=True
 )
 
-print('data loaded')
+#print('data loaded')
 
 root=pathlib.Path(train_path)
 classes=sorted([j.name.split('/')[-1] for j in root.iterdir()])
-print('Classes: '+str(classes))
+#print('Classes: '+str(classes))
 
 #CNN Network
 
@@ -54,6 +54,7 @@ class ConvNet(nn.Module):
         #p=1 (padding)
         #s=1 (stride)
         
+    
         #Input shape= (256,3,150,150)
         
         self.conv1=nn.Conv2d(in_channels=3,out_channels=12,kernel_size=3,stride=1,padding=1)
@@ -117,9 +118,15 @@ class ConvNet(nn.Module):
 
 model=ConvNet(num_classes=len(classes)).to(device)
 
+print("model loaded")
+
 #Optmizer and loss function
 optimizer=Adam(model.parameters(),lr=0.001,weight_decay=0.0001)
+
+print("optimizer defined")
 loss_function=nn.CrossEntropyLoss()
+
+print("loss defined")
 
 num_epochs=50
 

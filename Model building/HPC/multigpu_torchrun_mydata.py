@@ -1,15 +1,16 @@
-# THIS WORKS - DON'T CHANGE!
-
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-from datautils import MyTrainDataset
+import torchvision.datasets
+from torchvision.transforms import transforms
+#from datautils import MyTrainDataset
 
 import torch.multiprocessing as mp
 from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.distributed import init_process_group, destroy_process_group
 import os
+import pathlib
 
 
 def ddp_setup():
@@ -60,6 +61,7 @@ class Trainer:
             source = source.to(self.gpu_id)
             targets = targets.to(self.gpu_id)
             self._run_batch(source, targets)
+            
 
     def _save_snapshot(self, epoch):
         snapshot = {
@@ -77,8 +79,25 @@ class Trainer:
 
 
 def load_train_objs():
-    train_set = MyTrainDataset(2048)  # load your dataset
-    model = torch.nn.Linear(20, 1)  # load your model
+    # load your dataset
+    
+    #train_set = MyTrainDataset(2048)  # OLD
+    train_path = '../Data/train'
+    root=pathlib.Path(train_path)
+    classes=sorted([j.name.split('/')[-1] for j in root.iterdir()])
+    num_classes = len(classes)
+    transformer=transforms.Compose([
+        transforms.Resize((150,150)),
+        transforms.RandomHorizontalFlip(), # flips image with p=0.5 to augment data
+        transforms.ToTensor(),  #0-255 to 0-1, numpy to tensors
+        transforms.Normalize([0.5,0.5,0.5], # 0-1 to [-1,1] , formula (x-mean)/std
+                            [0.5,0.5,0.5]),
+    ])
+    train_set = torchvision.datasets.ImageFolder(root=train_path, transform=transformer)
+    
+    
+    # load model and optimizer
+    model = torch.nn.Conv2d(in_channels=3,out_channels=num_classes,kernel_size=3,stride=1,padding=1)
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
     return train_set, model, optimizer
 
@@ -94,11 +113,11 @@ def prepare_dataloader(dataset: Dataset, batch_size: int):
 
 
 def main(save_every: int, total_epochs: int, batch_size: int, snapshot_path: str = "snapshot.pt"):
-    print("Starting main")
+    #print("Starting main")
     ddp_setup()
-    print("ddp started")
+    #print("ddp started")
     dataset, model, optimizer = load_train_objs()
-    print("Load Training objects")
+    #print("Load Training objects")
     train_data = prepare_dataloader(dataset, batch_size)
     trainer = Trainer(model, train_data, optimizer, save_every, snapshot_path)
     trainer.train(total_epochs)

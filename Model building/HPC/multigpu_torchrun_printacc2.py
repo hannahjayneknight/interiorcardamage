@@ -1,5 +1,3 @@
-# THIS WORKS - DON'T CHANGE!
-
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
@@ -51,15 +49,28 @@ class Trainer:
         loss = F.cross_entropy(output, targets)
         loss.backward()
         self.optimizer.step()
+        acc = (output.round() == targets).float().mean()
 
-    def _run_epoch(self, epoch):
+        # source = images
+        # output = outputs
+        # labels = targets
+
+        return loss, acc
+
+        
+
+    def _run_epoch(self, epoch, num_samples):
         b_sz = len(next(iter(self.train_data))[0])
-        print(f"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)}")
+        #print(f"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)}")
         self.train_data.sampler.set_epoch(epoch)
         for source, targets in self.train_data:
             source = source.to(self.gpu_id)
             targets = targets.to(self.gpu_id)
-            self._run_batch(source, targets)
+            loss, acc = self._run_batch(source, targets)
+        
+        #train_accuracy=train_accuracy/num_samples
+        #train_loss=train_loss/num_samples
+        print(f"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)} | Accuracy: {acc} | Loss: {loss}")
 
     def _save_snapshot(self, epoch):
         snapshot = {
@@ -69,9 +80,9 @@ class Trainer:
         torch.save(snapshot, self.snapshot_path)
         print(f"Epoch {epoch} | Training snapshot saved at {self.snapshot_path}")
 
-    def train(self, max_epochs: int):
+    def train(self, max_epochs: int, num_samples):
         for epoch in range(self.epochs_run, max_epochs):
-            self._run_epoch(epoch)
+            self._run_epoch(epoch, num_samples)
             if self.gpu_id == 0 and epoch % self.save_every == 0:
                 self._save_snapshot(epoch)
 
@@ -101,7 +112,7 @@ def main(save_every: int, total_epochs: int, batch_size: int, snapshot_path: str
     print("Load Training objects")
     train_data = prepare_dataloader(dataset, batch_size)
     trainer = Trainer(model, train_data, optimizer, save_every, snapshot_path)
-    trainer.train(total_epochs)
+    trainer.train(total_epochs, len(dataset))
     destroy_process_group()
 
 

@@ -1,5 +1,3 @@
-# THIS WORKS - DON'T CHANGE!
-
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
@@ -45,21 +43,42 @@ class Trainer:
         self.epochs_run = snapshot["EPOCHS_RUN"]
         print(f"Resuming training from snapshot at Epoch {self.epochs_run}")
 
-    def _run_batch(self, source, targets):
+    def _run_batch(self, source, targets, correct):
         self.optimizer.zero_grad()
         output = self.model(source)
         loss = F.cross_entropy(output, targets)
         loss.backward()
         self.optimizer.step()
 
-    def _run_epoch(self, epoch):
+        # source = images
+        # output = outputs
+        # labels = targets
+
+        correct += (output == targets).float().sum()
+
+        #train_loss+= loss.cpu().data*source.size(0)
+        #_,prediction=torch.max(output.data,1)
+        #train_accuracy+=int(torch.sum(prediction==targets.data))
+        return correct
+
+        
+
+    def _run_epoch(self, epoch, num_samples):
         b_sz = len(next(iter(self.train_data))[0])
-        print(f"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)}")
+        #print(f"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)}")
         self.train_data.sampler.set_epoch(epoch)
+        train_accuracy=0.0
+        train_loss=0.0
+        correct = 0
         for source, targets in self.train_data:
             source = source.to(self.gpu_id)
             targets = targets.to(self.gpu_id)
-            self._run_batch(source, targets)
+            correct = self._run_batch(source, targets, correct)
+        
+        #train_accuracy=train_accuracy/num_samples
+        #train_loss=train_loss/num_samples
+        accuracy = 100 * correct / num_samples
+        print(f"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)} | Accuracy: {accuracy}")
 
     def _save_snapshot(self, epoch):
         snapshot = {
@@ -69,9 +88,9 @@ class Trainer:
         torch.save(snapshot, self.snapshot_path)
         print(f"Epoch {epoch} | Training snapshot saved at {self.snapshot_path}")
 
-    def train(self, max_epochs: int):
+    def train(self, max_epochs: int, num_samples):
         for epoch in range(self.epochs_run, max_epochs):
-            self._run_epoch(epoch)
+            self._run_epoch(epoch, num_samples)
             if self.gpu_id == 0 and epoch % self.save_every == 0:
                 self._save_snapshot(epoch)
 
@@ -101,7 +120,7 @@ def main(save_every: int, total_epochs: int, batch_size: int, snapshot_path: str
     print("Load Training objects")
     train_data = prepare_dataloader(dataset, batch_size)
     trainer = Trainer(model, train_data, optimizer, save_every, snapshot_path)
-    trainer.train(total_epochs)
+    trainer.train(total_epochs, len(dataset))
     destroy_process_group()
 
 
