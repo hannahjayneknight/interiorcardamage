@@ -14,7 +14,7 @@ import pathlib
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #print(device)
 
-transformer=transforms.Compose([
+train_transformer=transforms.Compose([
     transforms.Resize((150,150)),
     transforms.RandomHorizontalFlip(), # flips image with p=0.5 to augment data
     transforms.ToTensor(),  #0-255 to 0-1, numpy to tensors
@@ -22,26 +22,32 @@ transformer=transforms.Compose([
                         [0.5,0.5,0.5])
 ])
 
+test_transformer=transforms.Compose([
+    transforms.Resize((150,150)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.5,0.5,0.5],
+                        [0.5,0.5,0.5])
+])
+
 train_path = '../Data/train'
 test_path = '../Data/test'
 
 train_loader=torch.utils.data.DataLoader(
-    torchvision.datasets.ImageFolder(root=train_path, transform=transformer),
+    torchvision.datasets.ImageFolder(root=train_path, transform=train_transformer),
     batch_size=64, shuffle=True
 )
 test_loader=torch.utils.data.DataLoader(
-    torchvision.datasets.ImageFolder(root=test_path, transform=transformer),
+    torchvision.datasets.ImageFolder(root=test_path, transform=test_transformer),
     batch_size=32, shuffle=True
 )
 
-#print('data loaded')
+print('data loaded')
 
 root=pathlib.Path(train_path)
 classes=sorted([j.name.split('/')[-1] for j in root.iterdir()])
-#print('Classes: '+str(classes))
+print('No. classes: '+str(len(classes)))
 
 #CNN Network
-
 
 class ConvNet(nn.Module):
     def __init__(self,num_classes=len(classes)):
@@ -106,7 +112,7 @@ class ConvNet(nn.Module):
         output=self.relu3(output)
             
             
-            #Above output will be in matrix form, with shape (256,32,75,75)
+        #Above output will be in matrix form, with shape (256,32,75,75)
             
         output=output.view(-1,32*75*75)
             
@@ -116,7 +122,9 @@ class ConvNet(nn.Module):
         return output        
     
 
-model=ConvNet(num_classes=len(classes)).to(device)
+model=ConvNet(num_classes=len(classes))
+model.to(device)
+
 
 print("model loaded")
 
@@ -128,19 +136,18 @@ loss_function=nn.CrossEntropyLoss()
 
 print("loss defined")
 
-num_epochs=50
-
-#calculating the size of training and testing images
+num_epochs=5
 train_count=len(glob.glob(train_path+'/**/*.png'))
 test_count=len(glob.glob(test_path+'/**/*.png'))
-
-print(train_count,test_count)
+print(train_count, test_count)
 
 #Model training and saving best model
 
 best_accuracy=0.0
 
 for epoch in range(num_epochs):
+
+    print("Starting epoch " + str(epoch))
     
     #Evaluation and training on training dataset
     model.train()
@@ -148,9 +155,9 @@ for epoch in range(num_epochs):
     train_loss=0.0
     
     for i, (images,labels) in enumerate(train_loader):
-        if torch.cuda.is_available():
-            images=Variable(images.cuda())
-            labels=Variable(labels.cuda())
+        # if torch.cuda.is_available():
+        #     images=Variable(images.cuda())
+        #     labels=Variable(labels.cuda())
             
         optimizer.zero_grad()
         
