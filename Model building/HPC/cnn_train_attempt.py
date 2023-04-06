@@ -1,3 +1,5 @@
+# Attempting to actually train a model
+
 import torch
 import torch.nn as nn
 from torchvision.transforms import transforms
@@ -7,7 +9,6 @@ import torchvision
 import pathlib
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(device)
 train_transformer=transforms.Compose([
     transforms.Resize((150,150)),
     transforms.RandomHorizontalFlip(), # flips image with p=0.5 to augment data
@@ -15,26 +16,15 @@ train_transformer=transforms.Compose([
     transforms.Normalize([0.5,0.5,0.5], # 0-1 to [-1,1] , formula (x-mean)/std
                         [0.5,0.5,0.5])
 ])
-test_transformer=transforms.Compose([
-    transforms.Resize((150,150)),
-    transforms.ToTensor(),
-    transforms.Normalize([0.5,0.5,0.5],
-                        [0.5,0.5,0.5])
-])
 train_path = '../Data/train'
-test_path = '../Data/test'
 train_loader=torch.utils.data.DataLoader(
     torchvision.datasets.ImageFolder(root=train_path, transform=train_transformer),
-    batch_size=64, shuffle=True
+    batch_size=32, shuffle=True, num_workers=4,
+    pin_memory=True,
 )
-test_loader=torch.utils.data.DataLoader(
-    torchvision.datasets.ImageFolder(root=test_path, transform=test_transformer),
-    batch_size=32, shuffle=True
-)
-print('data loaded')
 root=pathlib.Path(train_path)
 classes=sorted([j.name.split('/')[-1] for j in root.iterdir()])
-print('No. classes: '+str(len(classes)))
+
 
 class ConvNet(nn.Module):
     def __init__(self,num_classes=len(classes)):
@@ -66,21 +56,19 @@ class ConvNet(nn.Module):
 
 model=ConvNet(num_classes=len(classes))
 model.to(device)
-print("model loaded")
 optimizer=Adam(model.parameters(),lr=0.001,weight_decay=0.0001)
-print("optimizer defined")
 loss_function=nn.CrossEntropyLoss()
-print("loss defined")
-num_epochs=5
+num_epochs=50
 for epoch in range(num_epochs):
+    #model.train()
     print("Starting epoch " + str(epoch))
-    for i, (images,labels) in enumerate(train_loader):  
-        images, labels = images.to(device), labels.to(device)
+    for i, data in enumerate(train_loader, 0):
+        inputs, labels = data[0].to(device), data[1].to(device)
         optimizer.zero_grad()
-        outputs=model(images)
+        outputs=model(inputs)
         loss=loss_function(outputs,labels)
         loss.backward()
-        optimizer.step()    
+        optimizer.step()
     print('Epoch '+str(epoch) + ' finished.')
     torch.save(model.state_dict(),'best_checkpoint.model')
     print("Model saved")
