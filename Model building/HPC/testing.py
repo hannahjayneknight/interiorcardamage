@@ -11,7 +11,7 @@ import torch.nn.functional as F
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 test_path = '../Data/test'
-BATCH=10
+BATCH=4032
 root=pathlib.Path(test_path)
 classes=sorted([j.name.split('/')[-1] for j in root.iterdir()])
 

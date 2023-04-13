@@ -17,6 +17,7 @@ from AlexNet import AlexNet
 
 def ddp_setup():
     init_process_group(backend="nccl")
+    torch.autograd.set_detect_anomaly(True)
 
 class Trainer:
     def __init__(
@@ -26,6 +27,7 @@ class Trainer:
         optimizer: torch.optim.Optimizer,
         save_every: int,
         snapshot_path: str,
+        lr_scheduler: torch.optim.Optimizer
     ) -> None:
         self.gpu_id = int(os.environ["LOCAL_RANK"])
         torch.cuda.set_device(self.gpu_id) # THE IMPORTANT LINE!
@@ -35,6 +37,7 @@ class Trainer:
         self.save_every = save_every
         self.epochs_run = 0
         self.snapshot_path = snapshot_path
+        self.lr_scheduler = lr_scheduler
         if os.path.exists(snapshot_path):
             print("Loading snapshot")
             self._load_snapshot(snapshot_path)
@@ -50,18 +53,20 @@ class Trainer:
 
     def _run_batch(self, source, targets):
         self.optimizer.zero_grad()
-        output = self.model(source)
+        output = self.model(source).to(self.gpu_id)
+        targets = targets.to(self.gpu_id)
         loss = F.cross_entropy(output, targets)
         loss.backward()
         self.optimizer.step()
 
     def _run_epoch(self, epoch):
+        self.lr_scheduler.step()
         b_sz = len(next(iter(self.train_data))[0])
         print(f"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)}")
         self.train_data.sampler.set_epoch(epoch)
         for source, targets in self.train_data:
             source = source.to(self.gpu_id)
-            targets = targets.to(self.gpu_id)
+            #targets = targets.to(self.gpu_id)
             self._run_batch(source, targets)
 
     def _save_snapshot(self, epoch):
@@ -77,25 +82,29 @@ class Trainer:
             self._run_epoch(epoch)
             if self.gpu_id == 0 and epoch % self.save_every == 0:
                 self._save_snapshot(epoch)
+        
+        if self.gpu_id == 0:
+            torch.save(self.model.module.state_dict(), "model.pt")
+            print("Final model saved.")
 
 
 def load_train_objs():
-    device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    #device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     train_path = '../Data/train'
     transformer=transforms.Compose([
         transforms.Resize((227, 227)),
-        transforms.RandomCrop(224),
-        transforms.RandomHorizontalFlip(),
+        #transforms.RandomCrop(224),
+        #transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        transforms.Normalize([0.5,0.5,0.5],
-                            [0.5,0.5,0.5])
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
     train_set = datasets.ImageFolder(root=train_path, transform=transformer)
     root=pathlib.Path(train_path)
     classes=sorted([j.name.split('/')[-1] for j in root.iterdir()])
-    alexnet = AlexNet(num_classes=len(classes)).to(device)
+    alexnet = AlexNet(num_classes=len(classes)) #.to(device)
     optimizer = torch.optim.Adam(params=alexnet.parameters(), lr=0.0001)
-    return train_set, alexnet, optimizer
+    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+    return train_set, alexnet, optimizer, lr_scheduler
 
 
 def prepare_dataloader(dataset: Dataset, batch_size: int):
@@ -104,18 +113,19 @@ def prepare_dataloader(dataset: Dataset, batch_size: int):
         batch_size=batch_size,
         pin_memory=True,
         shuffle=False,
-        sampler=DistributedSampler(dataset)
+        sampler=DistributedSampler(dataset),
+        #drop_last=True,
     )
 
 
-def main(save_every: int, total_epochs: int, batch_size: int, snapshot_path: str = "snapshot.pt"):
+def main(save_every: int, total_epochs: int, batch_size: int, snapshot_path: str = "snapshot_AlexNet.pt"):
     print("Starting main")
     ddp_setup()
     print("ddp started")
-    dataset, model, optimizer = load_train_objs()
+    dataset, model, optimizer, lr_scheduler = load_train_objs()
     print("Load Training objects")
     train_data = prepare_dataloader(dataset, batch_size)
-    trainer = Trainer(model, train_data, optimizer, save_every, snapshot_path)
+    trainer = Trainer(model, train_data, optimizer, save_every, snapshot_path, lr_scheduler)
     trainer.train(total_epochs)
     destroy_process_group()
 
