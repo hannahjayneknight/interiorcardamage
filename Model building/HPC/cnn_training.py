@@ -1,3 +1,5 @@
+# Attempting to actually train a model
+
 import torch
 import torch.nn as nn
 from torchvision.transforms import transforms
@@ -7,7 +9,6 @@ import torchvision
 import pathlib
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 train_transformer=transforms.Compose([
     transforms.Resize((150,150)),
     transforms.RandomHorizontalFlip(), # flips image with p=0.5 to augment data
@@ -16,11 +17,10 @@ train_transformer=transforms.Compose([
                         [0.5,0.5,0.5])
 ])
 train_path = '../Data/train'
-
 train_loader=torch.utils.data.DataLoader(
     torchvision.datasets.ImageFolder(root=train_path, transform=train_transformer),
     batch_size=32, shuffle=True, num_workers=4,
-    pin_memory=True, #drop_last=True,
+    pin_memory=True,
 )
 root=pathlib.Path(train_path)
 classes=sorted([j.name.split('/')[-1] for j in root.iterdir()])
@@ -43,16 +43,16 @@ class ConvNet(nn.Module):
         output=self.conv1(input)
         output=self.bn1(output)
         output=self.relu1(output)
-        output=self.pool(output)
+        output=self.pool(output)   
         output=self.conv2(output)
         output=self.relu2(output)
         output=self.conv3(output)
         output=self.bn3(output)
-        output=self.relu3(output)
+        output=self.relu3(output)            
         output=output.view(-1,32*75*75)
-        output=self.fc(output)
-        return output
-
+        output=self.fc(output) 
+        return output        
+    
 
 model=ConvNet(num_classes=len(classes))
 model.to(device)
@@ -72,3 +72,4 @@ for epoch in range(num_epochs):
     print('Epoch '+str(epoch) + ' finished.')
     torch.save(model.state_dict(),'best_checkpoint.model')
     print("Model saved")
+

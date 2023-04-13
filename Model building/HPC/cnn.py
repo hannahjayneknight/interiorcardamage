@@ -58,3 +58,4 @@ for param_tensor in model.state_dict():
 print("Optimizer's state_dict:")
 for var_name in optimizer.state_dict():
     print(var_name, "\t", optimizer.state_dict()[var_name])
+

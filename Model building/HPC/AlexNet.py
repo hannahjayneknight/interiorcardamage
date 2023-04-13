@@ -20,7 +20,7 @@ class AlexNet(nn.Module):
     """
     Neural network model consisting of layers propsed by AlexNet paper.
     """
-    def __init__(self, num_classes=1000):
+    def __init__(self, num_classes):
         """
         Define and allocate layers for this neural net.
 
