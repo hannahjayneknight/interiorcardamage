@@ -300,4 +300,51 @@ def change_car_colour(colour, dir):
 
         #set image node
         colour_node[0].image = image
+
+def add_dirt(surface_obj, obj, emitter='VERT'):
+    '''
+    Adds dirt at random locations on a surface object.
+    '''
+    randomly_change_colour(bpy.data.materials['RockMaterial'])
+    
+    if len(surface_obj.particle_systems) != 0:
+        remove_dirt(surface_obj)
+    surface_obj.modifiers.new("dirt", type='PARTICLE_SYSTEM')
+    part = surface_obj.particle_systems[0]
+    part.seed = int(random.random()*100000000)
+    part.vertex_group_density = "scatter"
+    settings = part.settings
+    if (emitter=='VERT'):
+        i=10000
+    else:
+        i = 5000
+    settings.count = int(random.random()*i)
+    settings.particle_size = 0.005
+    settings.render_type = 'OBJECT'
+    settings.instance_object = obj
+    settings.type = 'HAIR'
+    settings.use_advanced_hair = True
+    settings.use_rotations = True
+    settings.rotation_mode = 'NOR_TAN'
+    settings.rotation_factor_random = 1
+    settings.size_random = 1
+    settings.phase_factor_random = 1
+    settings.distribution = 'RAND'
+    settings.hair_length = 10 
+    settings.emit_from = emitter
+    return 
+
+
+def randomly_change_colour(material_to_change):
+    """ Changes the Principled BSDF colour of a material to a random colour. 
+    """
+    color = Color()
+    hue = random.random()
+    color.hsv = (hue, 1, 1)
+    rgba = [color.r, color.g, color.b, 1]
+    material_to_change.node_tree.nodes['Principled BSDF'].inputs[0].default_value = rgba
+    
+def remove_dirt(surface_obj):
+    surface_obj.modifiers.remove(surface_obj.modifiers["dirt"])
+
   
