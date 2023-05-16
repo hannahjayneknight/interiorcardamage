@@ -77,7 +77,8 @@ for obj_name in all_objects:
                     surface_obj = bpy.data.objects[ key ]
                     for y in range(n):
                         bm.random_cam( shots[key] )
-                        bm.randomly_change_background()
+                        dir = "../Backgrounds/"
+                        bm.randomly_change_background( dir )
                         active_cam_coll = bpy.context.scene.camera.users_collection[0].name
                         if (active_cam_coll in CAMs['camsL']):
                             bm.togglesidecar('R')  
