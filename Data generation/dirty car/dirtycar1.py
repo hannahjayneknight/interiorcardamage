@@ -19,9 +19,18 @@ CAMs = bm.getallCAMs()
 
 '''
 ---------------------------  VARIABLES TO CHANGE  -----------------------
+
+NB: 
+Total renders = number of objects (6) * number of car colours * 8 (number of shots) * n * m
+With n=3 for test data, n=12 for train data and m=34, we prioritise having as many different 
+dirty cars as possible with fewer renders per view of the car. 
+
+If we reduced m and increased n, we would prioritise having more renders per view of the car.
 '''
+
 output_str = "../Data/test" # ../Data/train or test
-n = 6 # n=6 for test data, n=25 for train data
+n = 3 # n=3 for test data, n=12 for train data
+m = 17
 
 
 '''
@@ -31,8 +40,8 @@ n = 6 # n=6 for test data, n=25 for train data
 all_objects = bm.getallObjs()
 # make all objects invisible at the start
 bm.makeINvisible( all_objects )
-#array_index_count = 0
-#array_index = int(os.environ['PBS_ARRAY_INDEX'])
+array_index_count = 0
+array_index = int(os.environ['PBS_ARRAY_INDEX'])
 output_path = Path(output_str)
 
 
@@ -47,47 +56,35 @@ for obj_name in all_objects:
     obj = bpy.data.objects[ obj_name ]
 
     # for parallelism on HPC
-    #array_index_count += 1
-    #if array_index_count == array_index:
-        
-    # loop through car interior colour and change here
-    colours = ['brown', 'black', 'cream']
-    texture_dir = "../textures/Interior"
-    for colour in colours:
-        bm.change_car_colour(colour, texture_dir)
+    array_index_count += 1
+    if array_index_count == array_index:
+           
+        # loop through car interior colour and change here
+        colours = ['brown', 'black', 'cream']
+        texture_dir = "../textures/Interior"
+        for colour in colours:
+            bm.change_car_colour(colour, texture_dir)
 
-        for key in shots:
-            # update surface_obj
-            surface_obj = bpy.data.objects[ key ]     
+            for z in range(m):
+                # 1. Make WHOLE car dirty
+                for key in shots:
+                    surface_obj = bpy.data.objects[ key ]
+                    bm.add_dirt(surface_obj, obj)
 
-            for y in range(n):
-                if (n%2==0):
-                    bm.add_dirt(surface_obj, obj, 'FACE') # 'FACE' or 'VERT'
-                else:
-                    bm.add_dirt(surface_obj, obj, 'VERT')
-                # change camera angle 
-                bm.random_cam( shots[key] )
-                # change background
-                dir = "../Backgrounds/"
-                bm.randomly_change_background( dir )
                 
-                # the current active camera's collection
-                active_cam_coll = bpy.context.scene.camera.users_collection[0].name
-                
-                # randomly toggle doors open or closed depending on which camera is active
-                if (active_cam_coll in CAMs['camsL']):
-                    bm.togglesidecar('R')
-                        
-                if (active_cam_coll in CAMs['camsR']):
-                    bm.togglesidecar('L')
-                    
-                if (active_cam_coll in CAMs['camsC']):
-                    bm.togglesidecar('C')
-
-                # Update file path and render
-                bpy.context.scene.render.filepath = str( output_path / 'dirty' / f'dirty_{str(count).zfill(6)}.png')
-                bpy.ops.render.render(write_still=True)
-                count += 1
-                
-            # remove final particle system so that it does not appear in next round
-            bm.remove_dirt(surface_obj)
+                # 2. Take renders at different angles, positions and backgrounds    
+                for key in shots:
+                    surface_obj = bpy.data.objects[ key ]
+                    for y in range(n):
+                        bm.random_cam( shots[key] )
+                        bm.randomly_change_background()
+                        active_cam_coll = bpy.context.scene.camera.users_collection[0].name
+                        if (active_cam_coll in CAMs['camsL']):
+                            bm.togglesidecar('R')  
+                        if (active_cam_coll in CAMs['camsR']):
+                            bm.togglesidecar('L')
+                        if (active_cam_coll in CAMs['camsC']):
+                            bm.togglesidecar('C')
+                        bpy.context.scene.render.filepath = str( output_path / 'dirty' / f'{obj_name}_{str(count).zfill(6)}.png')
+                        bpy.ops.render.render(write_still=True)
+                        count += 1

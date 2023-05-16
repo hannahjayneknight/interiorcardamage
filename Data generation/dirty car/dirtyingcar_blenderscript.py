@@ -1,9 +1,9 @@
 import bpy
 import random
 from pathlib import Path
-from os import listdir
-from mathutils import Euler, Color
 import os
+from mathutils import Euler, Color
+from os import listdir
 
 '''
 ---------------------------  FUNCTIONS  --------------------------------
@@ -22,6 +22,7 @@ def add_particles(surface_obj, obj):
     surface_obj.modifiers.new("random_obj", type='PARTICLE_SYSTEM')
     part = surface_obj.particle_systems[0]
     part.seed = int(random.random()*100000000)
+    part.vertex_group_density = "scatter"
     settings = part.settings
     settings.count = 1
     settings.particle_size = 0.1
@@ -56,8 +57,9 @@ def random_cam( CAMcollectionarr ):
     bpy.context.scene.camera = bpy.data.objects[ cam.name ]
     bpy.data.objects[ "Plane" ].constraints["Child Of"].target = bpy.data.objects[ cam.name ]
 
-def randomly_change_background( directory ):
-    #directory = "../Backgrounds/"
+def randomly_change_background():
+    directory = "C:/Users/hanna/OneDrive - Imperial College London/Year 4 work/Master's/Car interior/My Data Generation/Backgrounds/"
+    background_images = listdir(directory)
     background_images = listdir(directory)
     randomIndex = int(random.random()*(len(background_images)-1))
     background = bpy.data.images.load(str(directory + background_images[randomIndex]))
@@ -190,122 +192,12 @@ def change_colorramp( obj ):
         color.hsv = (H, S, V)
         rgba = [color.r, color.g, color.b, 1]
         colorramp.color_ramp.elements[1].color = rgba
-
-def shots():
-    '''
-    A dict for where particles spawn and their corresponding cameras.
-    '''
-    shots = {
-        'PassengerSeat' : [ 'CAMs-PassengerSeat' ],
-        'RearSeats' : [ 'CAMs-RearSeatsR' ],
-        'PassengerCarpet' : [ 'CAMs-PassengerCarpet' ],
-        'Dashboard' : [ 'CAMs-DashboardL', 'CAMs-DashboardC', 'CAMs-DashboardR' ],
-        'DriverCarpet' : [ 'CAMs-DriverCarpet' ],
-        'RearCarpetL' : [ 'CAMs-RearCarpetL' ],
-        'RearCarpetR' : [ 'CAMs-RearCarpetR' ],
-        'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
-    }
-    return shots
-
-def shots_test():
-    shots_test = {
-        'RearCarpetR' : [ 'CAMs-RearCarpetR' ],
-        'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
-    }
-    return shots_test
-
-def shots_test2():
-    shots_test2 = {
-        'RearCarpetR' : [ 'CAMs-RearCarpetR' ]
-    }
-    return shots_test2
-
-def change_car_colour(colour, dir):
-    car_nodes = {
-        'FrontSeatMat': 'FrontSeatBaseColour',
-        'RearSeatsMat': 'RearSeatsBaseColour',
-        'RearShelfMat': 'RearShelfBaseColour',
-        'DoorPanelFront': 'DoorPanelFrontBaseColour',
-        'DoorPanelRear': 'DoorPanelRearBaseColour',
-        'CenterConsole': 'CenterConsoleBaseColour',
-        'Steeringwheel': 'SteeringwheelBaseColour',
-        'Dashboard': 'DashboardBaseColour',
-    }
-    images = {
-        'FrontSeatBaseColour' : 
-            {
-                'brown':r'/Seats/Front/Front_Seat_Base_Color Brown.png',
-                'black':r'/Seats/Front/Front_Seat_Base_Color black.png',
-                'cream':r'/Seats/Front/Front_Seat_Base_Color Tan.png' 
-            },
-        'RearSeatsBaseColour':
-            {
-                'brown':r'/Seats/Rear/Rear Seats_Base_Color Brown.png',
-                'black':r'/Seats/Rear/Rear Seats_Base_Color Black.png',
-                'cream':r'/Seats/Rear/Rear Seats_Base_Color Tan.png' 
-            },
-        'RearShelfBaseColour':
-            {
-                'brown':r'/Shell/Shell_Base_Color BlueBrown.png',
-                'black':r'/Shell/Shell_Base_Color Black.png',
-                'cream':r'/Shell/Shell_Base_Color Tan.png' 
-            },
-        'DoorPanelFrontBaseColour':
-            {
-                'brown':r'/DoorPanels/Front/DoorPanelFront_Base_Color Brown.png',
-                'black':r'/DoorPanels/Front/DoorPanelFront_Base_Color Black.png',
-                'cream':r'/DoorPanels/Front/DoorPanelFront_Base_Color Tan.png'
-            },
-        'DoorPanelRearBaseColour':
-            {
-                'brown':r'/DoorPanels/Rear/DoorPanelRear_Base_Color Brown.png',
-                'black':r'/DoorPanels/Rear/DoorPanelRear_Base_Color Black.png',
-                'cream':r'/DoorPanels/Rear/DoorPanelRear_Base_Color Tan.png'
-            },
-        'CenterConsoleBaseColour':
-            {
-                'brown':r'/CenterConsole/CenterConsole_Base_Color Brown.png',
-                'black':r'/CenterConsole/CenterConsole_Base_Color Black.png',
-                'cream':r'/CenterConsole/CenterConsole_Base_Color Tan.png'
-            },
-        'SteeringwheelBaseColour':
-            {
-                'brown':r'/SteeringWheel/Steeringwheel_Base_Color Black.png',
-                'black':r'/SteeringWheel/Steeringwheel_Base_Color Black.png',
-                'cream':r'/SteeringWheel/Steeringwheel_Base_Color Tan.png'
-            },
-        'DashboardBaseColour':
-            {
-                'brown':r'/Dashboard/Dashboard_Base_Color Brown.png',
-                'black':r'/Dashboard/Dashboard_Base_Color BlackBlue.png',
-                'cream':r'/Dashboard/Dashboard_Base_Color Tan.png'
-            }
-    }
-    for key in car_nodes:
-    
-        mat = bpy.data.materials[ key ]
-        nodes = [n for n in mat.node_tree.nodes if n.type == 'TEX_IMAGE']
-        colour_node = [n for n in nodes if n.label == car_nodes[key]]
-
-        #get image
-        img_path = images[ car_nodes[key] ][ colour ]
-        img_path_short = os.path.basename(os.path.normpath(img_path))
-        full_path = dir + img_path 
-
-        if img_path in bpy.data.images:
-            image = bpy.data.images[ img_path_short ]
-        else:
-            image = bpy.data.images.load( full_path )
-
-
-        #set image node
-        colour_node[0].image = image
-
+  
 def add_dirt(surface_obj, obj):
     '''
     Adds dirt at random locations on a surface object.
     '''
-    randomly_change_colour( obj.data.materials[0] )
+    randomly_change_colour(bpy.data.materials['RockMaterial'])
     if len(surface_obj.particle_systems) != 0:
         remove_dirt(surface_obj)
     surface_obj.modifiers.new("dirt", type='PARTICLE_SYSTEM')
@@ -328,7 +220,7 @@ def add_dirt(surface_obj, obj):
     settings.use_even_distribution = False
     settings.hair_length = random.random()*50 
     settings.emit_from = 'FACE'
-    return  
+    return 
 
 
 def randomly_change_colour(material_to_change):
@@ -343,4 +235,73 @@ def randomly_change_colour(material_to_change):
 def remove_dirt(surface_obj):
     surface_obj.modifiers.remove(surface_obj.modifiers["dirt"])
 
-  
+'''
+---------------------------  FOR REFERENCE  -----------------------------
+'''  
+
+#where particles spawn and their corresponding cameras
+shots = {
+    'PassengerSeat' : [ 'CAMs-PassengerSeat' ],
+    'RearSeats' : [ 'CAMs-RearSeatsR' ], 
+    'PassengerCarpet' : [ 'CAMs-PassengerCarpet' ],
+    #'Dashboard' : [ 'CAMs-DashboardL', 'CAMs-DashboardC', 'CAMs-DashboardR' ],
+    'DriverCarpet' : [ 'CAMs-DriverCarpet' ],
+    'RearCarpetL' : [ 'CAMs-RearCarpetL' ],
+    'RearCarpetR' : [ 'CAMs-RearCarpetR' ],
+    #'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
+}
+
+
+#camera dictionary
+CAMs = getallCAMs()
+
+
+'''
+---------------------------  SCRIPT HERE  -------------------------------
+'''
+
+
+obj = bpy.data.objects[ "rock" ]
+makeINvisible( ["rock"] )
+n = 1 # number of renders per item in 'shots' (multiply by 6 then m to get total number of renders) 
+m = 2# number of dirty cars
+
+
+
+output_string = "C:/Users/hanna/OneDrive - Imperial College London/Year 4 work/Master's/Car interior/My Data Generation/Renders/Data generation temp"
+output_path = Path( output_string )
+
+
+# current count for each object
+DIR = str( output_string + "/dirty" ) 
+if (os.path.isdir(DIR) == True):
+    count = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+else:
+    count = 0
+
+for z in range(m):
+    # make WHOLE car dirty
+    for key in shots:
+        surface_obj = bpy.data.objects[ key ]
+        add_dirt(surface_obj, obj)
+    
+    #print("car number " + str(z) + "dirtied")
+    
+    # take renders at different angles, positions and backgrounds    
+    for key in shots:
+        surface_obj = bpy.data.objects[ key ]
+        for y in range(n):
+            random_cam( shots[key] )
+            randomly_change_background()
+            active_cam_coll = bpy.context.scene.camera.users_collection[0].name
+            if (active_cam_coll in CAMs['camsL']):
+                togglesidecar('R')  
+            if (active_cam_coll in CAMs['camsR']):
+                togglesidecar('L')
+            if (active_cam_coll in CAMs['camsC']):
+                togglesidecar('C')
+            bpy.context.scene.render.filepath = str( output_path / 'dirty' / f'dirty_{str(count).zfill(6)}.png')
+            bpy.ops.render.render(write_still=True)
+            count += 1
+        
+        #print("renders finished for " + str(key))

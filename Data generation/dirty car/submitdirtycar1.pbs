@@ -1,5 +1,6 @@
 #PBS -l walltime=16:00:00
 #PBS -l select=1:ncpus=64:mem=124gb:ngpus=1:gpu_type=RTX6000:cpu_type=rome
+#PBS -J 1-6
 
 module purge
 module add tools/prod
