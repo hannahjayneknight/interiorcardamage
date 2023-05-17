@@ -344,4 +344,38 @@ def randomly_change_colour(material_to_change):
 def remove_dirt(surface_obj):
     surface_obj.modifiers.remove(surface_obj.modifiers["dirt"])
 
+
+def add_hair(surface_obj):
+    '''
+    Adds hair at random locations on a surface object.
+    '''
+    randomly_change_colour( bpy.data.materials["Hair"] )
+    
+    if len(surface_obj.particle_systems) != 0:
+        remove_hair(surface_obj)
+    surface_obj.modifiers.new("hair", type='PARTICLE_SYSTEM')
+    part = surface_obj.particle_systems[0]
+    part.seed = int(random.random()*100000000)
+    part.vertex_group_density = "scatter"
+    settings = part.settings
+    settings.count = 10 #int(random.random()*1000)
+    settings.hair_length = 0.001#random.random()*0.001
+    settings.material_slot = 'Hair'
+    settings.type = 'HAIR'
+    settings.use_advanced_hair = True
+    settings.render_type = 'PATH'
+    settings.emit_from = 'FACE'
+    settings.tangent_factor = 0.01
+    settings.normal_factor = 0
+    settings.child_type = 'INTERPOLATED'
+    settings.rendered_child_count = int(random.random()*10) # between 1 and 10?
+    settings.kink = 'WAVE'
+    settings.kink_amplitude = random.random()*0.01
+    settings.tangent_phase = random.random()
+    settings.child_size_random = 1    
+    return 
+
+def remove_hair(surface_obj):
+    surface_obj.modifiers.remove(surface_obj.modifiers["hair"])
+
   
