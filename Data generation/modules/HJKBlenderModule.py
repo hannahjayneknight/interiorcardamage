@@ -204,6 +204,7 @@ def shots():
         'RearCarpetL' : [ 'CAMs-RearCarpetL' ],
         'RearCarpetR' : [ 'CAMs-RearCarpetR' ],
         'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
+        'DriverSeat': [ 'CAMs-DriverSeat' ],
     }
     return shots
 
