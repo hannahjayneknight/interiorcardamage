@@ -30,6 +30,8 @@ If we reduced m and increased n, we would prioritise having more renders per vie
 
 output_str = "../Data/test" # ../Data/train or test
 n = 3 # n=3 for test data, n=12 for train data
+# i.e. n*8 shots for one dirty car
+# n*8*3 shots for each car colour
 m = 17
 
 
