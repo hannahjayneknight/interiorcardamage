@@ -358,7 +358,7 @@ def add_hair(surface_obj):
     part.seed = int(random.random()*100000000)
     part.vertex_group_density = "scatter"
     settings = part.settings
-    settings.count = 10 #int(random.random()*1000)
+    settings.count = int(random.random()*100)
     settings.hair_length = 0.001#random.random()*0.001
     settings.material_slot = 'Hair'
     settings.type = 'HAIR'
@@ -368,11 +368,13 @@ def add_hair(surface_obj):
     settings.tangent_factor = 0.01
     settings.normal_factor = 0
     settings.child_type = 'INTERPOLATED'
-    settings.rendered_child_count = int(random.random()*10) # between 1 and 10?
+    settings.rendered_child_count = int(random.random()*100)
     settings.kink = 'WAVE'
     settings.kink_amplitude = random.random()*0.01
     settings.tangent_phase = random.random()
-    settings.child_size_random = 1    
+    settings.child_size_random = 1   
+    settings.root_radius = 0.01
+    settings.tip_radius = 0.01
     return 
 
 def remove_hair(surface_obj):
