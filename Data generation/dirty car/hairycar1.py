@@ -21,18 +21,18 @@ CAMs = bm.getallCAMs()
 ---------------------------  VARIABLES TO CHANGE  -----------------------
 
 NB: 
-Total renders = number of car colours * 8 (number of shots) * n * m
+Total renders = number of car colours * 9 (number of shots) * n * m
 With n=3 for test data, n=12 for train data and m=34, we prioritise having as many different 
 dirty cars as possible with fewer renders per view of the car. 
 
 If we reduced m and increased n, we would prioritise having more renders per view of the car.
 '''
 
-output_str = "../Data/test/dirty" # ../Data/train or test
-n = 6 # n=6 for test data, n=24 for train data
+output_str = "../Data/test" # ../Data/train or test
+n = 6 # n=6 for test data, n=18 for train data
 # i.e. n*8 shots for one dirty car
 # n*8*3 shots for each car colour
-m = 51
+m = 102
 
 
 '''
@@ -42,11 +42,9 @@ m = 51
 array_index_count = 0
 array_index = int(os.environ['PBS_ARRAY_INDEX'])
 output_path = Path(output_str)
-
-
-# loop through car interior colour and change here
 colours = ['brown', 'black', 'cream']
 texture_dir = "../textures/Interior"
+
 for colour in colours:
     # current count
     DIR = str( output_str + "/" + colour ) 
@@ -82,6 +80,6 @@ for colour in colours:
                         bm.togglesidecar('L')
                     if (active_cam_coll in CAMs['camsC']):
                         bm.togglesidecar('C')
-                    bpy.context.scene.render.filepath = str( output_path / colour / f'hairy_{str(count).zfill(6)}.png')
+                    bpy.context.scene.render.filepath = str( output_path / 'hairy' / f'hairy_{colour}_{str(count).zfill(6)}.png')
                     bpy.ops.render.render(write_still=True)
                     count += 1

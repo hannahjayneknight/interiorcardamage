@@ -21,7 +21,7 @@ CAMs = bm.getallCAMs()
 ---------------------------  VARIABLES TO CHANGE  -----------------------
 
 NB: 
-Total renders = number of objects (6) * number of car colours * 8 (number of shots) * n * m
+Total renders = number of objects (6) * number of car colours * 9 (number of shots) * n * m
 With n=3 for test data, n=12 for train data and m=34, we prioritise having as many different 
 dirty cars as possible with fewer renders per view of the car. 
 
