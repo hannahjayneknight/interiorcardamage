@@ -63,6 +63,7 @@ for colour in colours:
             # 1. Make WHOLE car hairy
             for key in shots:
                 surface_obj = bpy.data.objects[ key ]
+                bpy.context.view_layer.objects.active = surface_obj
                 bm.add_hair(surface_obj)
 
             
