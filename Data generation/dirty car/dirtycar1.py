@@ -28,7 +28,7 @@ dirty cars as possible with fewer renders per view of the car.
 If we reduced m and increased n, we would prioritise having more renders per view of the car.
 '''
 
-output_str = "../Data/test" # ../Data/train or test
+output_str = "../Data/test/dirty" # ../Data/train or test /dirty
 n = 3 # n=3 for test data, n=12 for train data
 # i.e. n*8 shots for one dirty car
 # n*8*3 shots for each car colour
@@ -49,11 +49,10 @@ output_path = Path(output_str)
 
 for obj_name in all_objects:
     # current count for each object
-    DIR = str( output_str + "/" + obj_name ) 
-    if (os.path.isdir(DIR) == True):
-        count = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
-    else:
-        count = 0
+    DIR = str( output_str + "/" )
+    FILE_NAME = str(obj_name + "_")
+    count = len([name for name in os.listdir( DIR ) if FILE_NAME in name])
+
     # loop through all objects
     obj = bpy.data.objects[ obj_name ]
 
@@ -88,6 +87,6 @@ for obj_name in all_objects:
                             bm.togglesidecar('L')
                         if (active_cam_coll in CAMs['camsC']):
                             bm.togglesidecar('C')
-                        bpy.context.scene.render.filepath = str( output_path / 'dirty' / f'{obj_name}_{str(count).zfill(6)}.png')
+                        bpy.context.scene.render.filepath = str( output_path / f'{obj_name}_{str(count).zfill(6)}.png')
                         bpy.ops.render.render(write_still=True)
                         count += 1

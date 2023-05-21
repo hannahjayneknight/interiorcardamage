@@ -28,7 +28,7 @@ dirty cars as possible with fewer renders per view of the car.
 If we reduced m and increased n, we would prioritise having more renders per view of the car.
 '''
 
-output_str = "../Data/test" # ../Data/train or test
+output_str = "../Data/test/hairy" # ../Data/train or test
 n = 6 # n=6 for test data, n=18 for train data
 # i.e. n*8 shots for one dirty car
 # n*8*3 shots for each car colour
@@ -47,11 +47,9 @@ texture_dir = "../textures/Interior"
 
 for colour in colours:
     # current count
-    DIR = str( output_str + "/" + colour ) 
-    if (os.path.isdir(DIR) == True):
-        count = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
-    else:
-        count = 0
+    DIR = str( output_str + "/" )
+    FILE_NAME = str( "hairy_" + colour)
+    count = len([name for name in os.listdir( DIR ) if FILE_NAME in name])
 
     bm.change_car_colour(colour, texture_dir)
 
@@ -81,6 +79,6 @@ for colour in colours:
                         bm.togglesidecar('L')
                     if (active_cam_coll in CAMs['camsC']):
                         bm.togglesidecar('C')
-                    bpy.context.scene.render.filepath = str( output_path / 'hairy' / f'hairy_{colour}_{str(count).zfill(6)}.png')
+                    bpy.context.scene.render.filepath = str( output_path / f'hairy_{colour}_{str(count).zfill(6)}.png')
                     bpy.ops.render.render(write_still=True)
                     count += 1

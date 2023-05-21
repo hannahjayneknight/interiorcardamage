@@ -215,11 +215,19 @@ def shots_test():
     }
     return shots_test
 
-def shots_test2():
-    shots_test2 = {
-        'RearCarpetR' : [ 'CAMs-RearCarpetR' ]
+def shots_reduced():
+    shots = {
+        'PassengerSeat' : [ 'CAMs-PassengerSeat' ],
+        'RearSeats' : [ 'CAMs-RearSeatsR' ],
+        'PassengerCarpet' : [ 'CAMs-PassengerCarpet' ],
+     #   'Dashboard' : [ 'CAMs-DashboardL', 'CAMs-DashboardC', 'CAMs-DashboardR' ],
+        'DriverCarpet' : [ 'CAMs-DriverCarpet' ],
+        'RearCarpetL' : [ 'CAMs-RearCarpetL' ],
+        'RearCarpetR' : [ 'CAMs-RearCarpetR' ],
+     #   'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
+        'DriverSeat': [ 'CAMs-DriverSeat' ],
     }
-    return shots_test2
+    return shots
 
 def change_car_colour(colour, dir):
     car_nodes = {
