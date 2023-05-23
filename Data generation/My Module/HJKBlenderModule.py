@@ -218,13 +218,13 @@ def shots_test():
 def shots_reduced():
     shots = {
         'PassengerSeat' : [ 'CAMs-PassengerSeat' ],
-        'RearSeats' : [ 'CAMs-RearSeatsR' ],
+        #'RearSeats' : [ 'CAMs-RearSeatsR' ],
         'PassengerCarpet' : [ 'CAMs-PassengerCarpet' ],
-     #   'Dashboard' : [ 'CAMs-DashboardL', 'CAMs-DashboardC', 'CAMs-DashboardR' ],
+        'Dashboard' : [ 'CAMs-DashboardL', 'CAMs-DashboardC', 'CAMs-DashboardR' ],
         'DriverCarpet' : [ 'CAMs-DriverCarpet' ],
         'RearCarpetL' : [ 'CAMs-RearCarpetL' ],
         'RearCarpetR' : [ 'CAMs-RearCarpetR' ],
-     #   'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
+        'RearShelf' : [ 'CAMs-RearShelfL', 'CAMs-RearShelfC', 'CAMs-RearShelfR' ],
         'DriverSeat': [ 'CAMs-DriverSeat' ],
     }
     return shots
@@ -388,4 +388,129 @@ def add_hair(surface_obj):
 def remove_hair(surface_obj):
     surface_obj.modifiers.remove(surface_obj.modifiers["hair"])
 
-  
+def getObjsInCollection( collection ):
+    '''
+    Returns an array with all the objects part of a collection. 
+    '''
+    objs = []
+    for object in bpy.data.collections[ collection ].objects:
+        objs.append(object.name)
+    return objs
+
+def togglesidecarV2( side ):
+    '''
+    Toggle side var version 2.
+    '''
+    L = getObjsInCollection("Door L")
+    R = getObjsInCollection("Door R")
+
+    # Set all objects to be hidden
+    makeINvisible(L)
+    makeINvisible(R)
+    
+    # Set all objects on desired side to be visible
+    if (side=='L'):
+        if (random_bool() == 1):
+            makevisible(L)
+    if (side=='R'):
+        if (random_bool() == 1):
+            makevisible(R)
+    # if camera in the centre, we make both sides visible
+    if (side=='C'):
+        if (random_bool() == 1):
+            makevisible(L)
+        if (random_bool() == 1):
+            makevisible(R)
+
+
+def add_particlesV2(surface_obj, obj_name="", type="hair"):
+    '''
+    Adds particle/s to a surface object. Parameters: surface object (bpy.types.Object), 
+    obj_name (string) and type (string). The types are listed below.
+
+    foreign-obj:
+        - Finds obj_name in bpy.data.objects. This is the foreign object that will be 
+        spawned.
+        - Changes the colour of the object.
+        - Spawns it once in a random position and orientation on surface_obj.
+    dirt:
+        - Finds obj_name in bpy.data.objects. This is the type of dirt that will be 
+        spawned (e.g. rocks, sticks, sand).
+        - Changes the colour of the dirt.
+        - Spawns it 0-100000000 times at random positions and orientations on surface_obj.
+    hair:
+        - Changes the colour of the hair material.
+        - Spawns a random number of hair strands on the surface_obj with a random waviness.
+    '''
+    if type == "foreign-obj":
+        obj = bpy.data.objects[ obj_name ]
+        change_colorramp( obj )
+        if len(surface_obj.particle_systems) != 0:
+            remove_particle_system(surface_obj)
+        surface_obj.modifiers.new("random_obj", type='PARTICLE_SYSTEM')
+        part = surface_obj.particle_systems[0]
+        part.seed = int(random.random()*100000000)
+        settings = part.settings
+        settings.count = 1
+        settings.particle_size = 0.1
+        settings.render_type = 'OBJECT'
+        settings.instance_object = obj
+        settings.type = 'HAIR'
+        settings.use_advanced_hair = True
+        settings.use_rotations = True
+        settings.rotation_mode = 'GLOB_X'
+        settings.rotation_factor_random = 0.5
+        #settings.phase_factor_random = 1
+        settings.distribution = 'RAND'
+        settings.hair_length = 10  
+    elif type == "dirt":
+        randomly_change_colour( obj.data.materials[0] )
+        if len(surface_obj.particle_systems) != 0:
+            remove_dirt(surface_obj)
+        surface_obj.modifiers.new("dirt", type='PARTICLE_SYSTEM')
+        part = surface_obj.particle_systems[0]
+        part.seed = int(random.random()*100000000)
+        part.vertex_group_density = "scatter"
+        settings = part.settings
+        settings.count = int(random.random()*1000)
+        settings.particle_size = 0.005
+        settings.render_type = 'OBJECT'
+        settings.instance_object = obj
+        settings.type = 'HAIR'
+        settings.use_advanced_hair = True
+        settings.use_rotations = True
+        settings.rotation_mode = 'NOR_TAN'
+        settings.rotation_factor_random = 1
+        settings.size_random = 1
+        settings.phase_factor_random = 1
+        settings.distribution = 'JIT'
+        settings.use_even_distribution = False
+        settings.hair_length = random.random()*50 
+        settings.emit_from = 'FACE'
+    elif type =="hair":
+        randomly_change_colour( bpy.data.materials["Hair"] )
+        if len(surface_obj.particle_systems) != 0:
+            remove_hair(surface_obj)
+        surface_obj.modifiers.new("hair", type='PARTICLE_SYSTEM')
+        part = surface_obj.particle_systems[0]
+        part.seed = int(random.random()*100000000)
+        part.vertex_group_density = "scatter"
+        settings = part.settings
+        settings.count = int(random.random()*100)
+        settings.hair_length = 0.001#random.random()*0.001
+        settings.material_slot = 'Hair'
+        settings.type = 'HAIR'
+        settings.use_advanced_hair = True
+        settings.render_type = 'PATH'
+        settings.emit_from = 'FACE'
+        settings.tangent_factor = 0.01
+        settings.normal_factor = 0
+        settings.child_type = 'INTERPOLATED'
+        settings.rendered_child_count = int(random.random()*100)
+        settings.kink = 'WAVE'
+        settings.kink_amplitude = random.random()*0.01
+        settings.tangent_phase = random.random()
+        settings.child_size_random = 1   
+        settings.root_radius = 0.01
+        settings.tip_radius = 0.01
+    return 

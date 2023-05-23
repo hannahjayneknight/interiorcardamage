@@ -4,39 +4,13 @@ Note: All blender files and renders (data) is exported to my OneDrive account si
 
 ## Data Generation
 
-### ```testing```
-This was an initial test to get used to Imperial's HPC, make sure blender would run on the HPC and other testing purposes.
+## Model building
+- The "Data" folder contains folders for each object, "dirty", "hairy" and "clear" for the Volvo.
+    - "VWUP_Data" conatins the same data for this car.
+- The "foreign_vs_clear" folder contains only "foreign-object" and "clear" for the Volvo.
+- The "mess_vs_clear" folder contains a "mess" folder (including foreign objects, dirt and hair) a "clear" folder for the Volvo.
+    - Do the same but with data from the VW too?
 
-### ```renaming```
-Whenever I need to walk through a folder and rename the images (eg because I am merging folders).
-
-### ```Object placement 1.blend```
-All the python scripts in my ```Object placement 1.blend``` file. This was the first file I worked on for object placemement on my own laptop, so there are a lot of drafts as I figure out how I want the script to run.
-
-### ```ObjPlacement```
-Folder with code for object placement that has been uploaded and run on the HPC. All files have 27 objects in and randomly spawn them within the car and change the object's colour where appropriate. It chooses a random camera angle and background.
-
-### ```Modules```
-Python modules I have generated for this project.
-
-### ```LitterPlacement```
-
-### ```SpawningMess```
-
-### ```EmptyCar```
-
-Scripts for generating images of an empty or "clear" car.
-
-### Queued jobs
-
-| filename               | car interior | output path            | HPC settings |
-|----------              |--------------|-------------           | ----------------|
-| ```submitObjPlacement.pbs``` | Dark         | "../Data/DarkInterior" |  #PBS -l walltime=04:00:00 #PBS -l select=1:ncpus=1:mem=24gb:ngpus=1:gpu_type=RTX6000
-| ```submitObjPlacement2.pbs``` | Dark        | "../Data2/DarkInterior"|  #PBS -l walltime=04:30:00 #PBS -l select=4:ncpus=1:mem=24gb:ngpus=8:gpu_type=RTX6000 #PBS -J 1-27 **(ie trying threading)**
-| ```submitObjPlacement-cream.pbs``` | Cream | "../Data/CreamInterior" |  #PBS -l walltime=121:30:00 #PBS -l select=1:ncpus=1:mem=24gb:ngpus=1:gpu_type=RTX6000 **(ie trying no threading, 1 gpu, but a really long walltime)**
-| ```submitObjPlacement2.pbs``` | Dark        | "../Data2/DarkInterior"|  #PBS -l walltime=16:00:00 #PBS -l select=1:ncpus=64:mem=124gb:ngpus=1:gpu_type=RTX6000:cpu_type=rome #PBS -J 1-27 AND -t 64 **(ie 2nd attempt at multi-threading, trying a longer walltime, multiple cpus and 1 gpu)**
-| ```submitObjPlacement2-cream.pbs``` | Cream | "../Data/CreamInterior" |  #PBS -l walltime=121:30:00 #PBS -l select=1:ncpus=1:mem=24gb:ngpus=1:gpu_type=RTX6000 **(ie trying no threading, 1 gpu, but a really long walltime)**
-| ```submitObjPlacement-brown.pbs``` | Brown | "../Data/Brown" | [to be decided]
 
 ### Notes 
 - I think the -t command when running a blender file from the command line refers to the number of CPUs, not GPUs???
@@ -46,14 +20,3 @@ Scripts for generating images of an empty or "clear" car.
 - Scene initialisation and saving the image takes the most ammount of time and uses the CPU not the GPU, therefore, potentially more time can be saved by increasing the number of CPUs rather than the number of GPUs.
 - ```submitObjPlacement2.pbs``` **worked very well!!!** This means it was the number of CPUs, not the number of GPUs, that was the limited factor. I wil continue to use this method going forward.
     - Note: Due to job limited sizes, I can only queue one script like this at a time.
-
-
-## Model building
-
-### Image classifier
-
-### Image detection
-
-### Transformer
-
-### Building on pre-trained models
