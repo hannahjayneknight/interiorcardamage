@@ -26,8 +26,18 @@ output_str = "../VWUP" # directory to save renders
 background_dir = "../Backgrounds/" # directory where background images are
 CAR_NAME = "VWUP" # current car model
 
-n = 6 # n* 9 = number of renders per obj for test data
-m = 25 # m* 9 = number of renders per obj for train data
+# number of renders taken per view of the car (per key in 'shots')
+n_foreign = 6 # foreign-object test data
+m_foreign = 25 # foreign-object train data
+n_dirty = 3 # dirty test data
+m_dirty = 6 # dirty train data
+n_hairy = 3 # hairy test data
+m_hairy = 6 # hairy train data
+
+# number of full dirty or hairy cars
+dirty_cars = 17
+hairy_cars = 50
+
 
 
 '''
@@ -75,7 +85,7 @@ for mess_name in all_messes:
                 surface_obj = bpy.data.objects[ key ] # interior surface that particles are spawned on
 
                 # 'TEST' DATA
-                for y in range(n):
+                for y in range(n_foreign):
                     bm.add_particles(surface_obj, obj)
                     bm.random_cam( shots[key] )
                     bm.randomly_change_background( background_dir )
@@ -102,7 +112,7 @@ for mess_name in all_messes:
                 print( "Finished generating TEST data for foreign objects." )
 
                 # 'TRAIN' DATA
-                for y in range(m):
+                for y in range(m_foreign):
                     bm.add_particles(surface_obj, obj)
                     bm.random_cam( shots[key] )
                     bm.randomly_change_background( background_dir )
@@ -142,7 +152,7 @@ for mess_name in all_messes:
         if array_index_count == array_index:
 
                 # 'TEST' DATA
-                for z in range(17):
+                for z in range(dirty_cars):
                     # 1. Make WHOLE car dirty
                     for key in shots:
                         surface_obj = bpy.data.objects[ key ]
@@ -151,38 +161,38 @@ for mess_name in all_messes:
                     # 2. Take renders at different angles, positions and backgrounds    
                     for key in shots:
                         surface_obj = bpy.data.objects[ key ]
-                        for y in range(n):
+                        for y in range(n_dirty):
                             bm.random_cam( shots[key] )
                             bm.randomly_change_background( background_dir )
                             active_cam_coll = bpy.context.scene.camera.users_collection[0].name
                             if (active_cam_coll in CAMs['camsL']):
-                                bm.togglesidecar('R')  
+                                bm.togglesidecarV2('R')  
                             if (active_cam_coll in CAMs['camsR']):
-                                bm.togglesidecar('L')
+                                bm.togglesidecarV2('L')
                             if (active_cam_coll in CAMs['camsC']):
-                                bm.togglesidecar('C')
+                                bm.togglesidecarV2('C')
                             bpy.context.scene.render.filepath = str( Path(TEST_DIR) / f'{FILE_NAME}_{str(test_count).zfill(6)}.png')
                             bpy.ops.render.render(write_still=True)
                             test_count += 1
                 print( "Finished generating TEST data for dirty car." )
 
                 # 'TRAIN' DATA
-                for z in range(17):
+                for z in range(dirty_cars):
                     for key in shots:
                         surface_obj = bpy.data.objects[ key ]
                         bm.add_dirt(surface_obj, obj)
                     for key in shots:
                         surface_obj = bpy.data.objects[ key ]
-                        for y in range(m):
+                        for y in range(m_dirty):
                             bm.random_cam( shots[key] )
                             bm.randomly_change_background( background_dir )
                             active_cam_coll = bpy.context.scene.camera.users_collection[0].name
                             if (active_cam_coll in CAMs['camsL']):
-                                bm.togglesidecar('R')  
+                                bm.togglesidecarV2('R')  
                             if (active_cam_coll in CAMs['camsR']):
-                                bm.togglesidecar('L')
+                                bm.togglesidecarV2('L')
                             if (active_cam_coll in CAMs['camsC']):
-                                bm.togglesidecar('C')
+                                bm.togglesidecarV2('C')
                             bpy.context.scene.render.filepath = str( Path(TRAIN_DIR) / f'{FILE_NAME}_{str(train_count).zfill(6)}.png')
                             bpy.ops.render.render(write_still=True)
                             train_count += 1
@@ -209,7 +219,7 @@ for mess_name in all_messes:
         if array_index_count == array_index:
 
             # 'TEST' DATA
-            for z in range(17):
+            for z in range(hairy_cars):
                 # 1. Make WHOLE car hairy
                 for key in shots:
                     surface_obj = bpy.data.objects[ key ]
@@ -219,23 +229,23 @@ for mess_name in all_messes:
                 # 2. Take renders at different angles, positions and backgrounds    
                 for key in shots:
                     surface_obj = bpy.data.objects[ key ]
-                    for y in range(n):
+                    for y in range(n_hairy):
                         bm.random_cam( shots[key] )
                         bm.randomly_change_background( background_dir )
                         active_cam_coll = bpy.context.scene.camera.users_collection[0].name
                         if (active_cam_coll in CAMs['camsL']):
-                            bm.togglesidecar('R')  
+                            bm.togglesidecarV2('R')  
                         if (active_cam_coll in CAMs['camsR']):
-                            bm.togglesidecar('L')
+                            bm.togglesidecarV2('L')
                         if (active_cam_coll in CAMs['camsC']):
-                            bm.togglesidecar('C')
+                            bm.togglesidecarV2('C')
                         bpy.context.scene.render.filepath = str( Path(TEST_DIR) / f'{FILE_NAME}_{str(test_count).zfill(6)}.png')
                         bpy.ops.render.render(write_still=True)
                         test_count += 1
             print( "Finished generating TEST data for hairy car." )
 
             # 'TRAIN' DATA
-            for z in range(17):
+            for z in range(hairy_cars):
                 # 1. Make WHOLE car hairy
                 for key in shots:
                     surface_obj = bpy.data.objects[ key ]
@@ -245,16 +255,16 @@ for mess_name in all_messes:
                 # 2. Take renders at different angles, positions and backgrounds    
                 for key in shots:
                     surface_obj = bpy.data.objects[ key ]
-                    for y in range(m):
+                    for y in range(m_hairy):
                         bm.random_cam( shots[key] )
                         bm.randomly_change_background( background_dir )
                         active_cam_coll = bpy.context.scene.camera.users_collection[0].name
                         if (active_cam_coll in CAMs['camsL']):
-                            bm.togglesidecar('R')  
+                            bm.togglesidecarV2('R')  
                         if (active_cam_coll in CAMs['camsR']):
-                            bm.togglesidecar('L')
+                            bm.togglesidecarV2('L')
                         if (active_cam_coll in CAMs['camsC']):
-                            bm.togglesidecar('C')
+                            bm.togglesidecarV2('C')
                         bpy.context.scene.render.filepath = str( Path(TRAIN_DIR) / f'{FILE_NAME}_{str(train_count).zfill(6)}.png')
                         bpy.ops.render.render(write_still=True)
                         train_count += 1

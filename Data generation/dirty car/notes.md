@@ -10,3 +10,7 @@
 **Notes on dirty car TEST data**
 - I reran for driverseat without changing the counting part of the script, so it started at count 0, overwriting all my previous images!
 - This is OK for the testing dataset, but I need to be careful next time.
+
+
+**General**
+- Sometime, HPC would fail to load Blender or find CUDA etc and the job wouldn't run. It appears to be random, and simply running the script again gets it to work.

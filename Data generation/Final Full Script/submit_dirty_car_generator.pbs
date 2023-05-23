@@ -1,5 +1,6 @@
 #PBS -l walltime=22:00:00
 #PBS -l select=1:ncpus=64:mem=124gb:ngpus=1:gpu_type=RTX6000:cpu_type=rome
+#PBS -J 1-54
 
 module purge
 module add tools/prod
@@ -7,4 +8,4 @@ module add Blender/3.4.1-linux-x86_64-CUDA-11.7.0
 module add Python/3.10.4-GCCcore-11.3.0
 
 cd $PBS_O_WORKDIR
-blender -b VWUP.blend -t 64 --python emptycarV2.py -E CYCLES -- --cycles-device CUDA
+blender -b VWUP.blend -t 64 --python dirty_car_generator.py -E CYCLES -- --cycles-device CUDA
