@@ -20,3 +20,4 @@ Note: All blender files and renders (data) is exported to my OneDrive account si
 - Scene initialisation and saving the image takes the most ammount of time and uses the CPU not the GPU, therefore, potentially more time can be saved by increasing the number of CPUs rather than the number of GPUs.
 - ```submitObjPlacement2.pbs``` **worked very well!!!** This means it was the number of CPUs, not the number of GPUs, that was the limited factor. I wil continue to use this method going forward.
     - Note: Due to job limited sizes, I can only queue one script like this at a time.
+- HPC limits the number of concurrent jobs (queued or running) to 50 per user. Therefore, I have to limit the number of objs etc accordingly.

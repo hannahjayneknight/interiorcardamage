@@ -26,7 +26,8 @@ output_str = "../VWUP" # directory to save renders
 background_dir = "../Backgrounds/" # directory where background images are
 CAR_NAME = "VWUP" # current car model
 
-# number of renders taken per view of the car (per key in 'shots')
+# multiply these numbers by 9 (the number of keys in 'shots') to find the total number of renders
+# per foreign object/ dirty/ hairy car for train/ test data
 n_foreign = 6 # foreign-object test data
 m_foreign = 25 # foreign-object train data
 n_dirty = 3 # dirty test data
@@ -47,7 +48,7 @@ hairy_cars = 50
 # make all particles that will be spawned invisible at the start
 foreign_objects = bm.getObjsInCollection( 'OBJS' )
 dirt_objects = bm.getObjsInCollection( 'DIRT' )
-all_messes = foreign_objects + dirt_objects + ["hairy"] # note this is an efficient method for concatonating lists: https://stackoverflow.com/questions/12088089/python-list-concatenation-efficiency
+all_particles = foreign_objects + dirt_objects + ["hairy"] # note this is an efficient method for concatonating lists: https://stackoverflow.com/questions/12088089/python-list-concatenation-efficiency
 bm.makeINvisible( foreign_objects )
 bm.makeINvisible ( dirt_objects )
 # for parallelism on HPC, in job script file J 1-N where N is the length of all_objects+1 (for hairy sub-job)
@@ -56,14 +57,14 @@ array_index = int(os.environ['PBS_ARRAY_INDEX'])
 
 
 
-for mess_name in all_messes:
-    FILE_NAME = f'{mess_name}_{CAR_NAME}'
+for particle in all_particles:
+    FILE_NAME = f'{particle}_{CAR_NAME}'
 
     ######################################################
     # FOREIGN OBJECT
     ######################################################
 
-    if mess_name in foreign_objects:
+    if particle in foreign_objects:
         # current count of renders in output folder, so files are not overwritten
         TRAIN_DIR = f'{output_str}/train/foreign-object'
         TEST_DIR = f'{output_str}/test/foreign-object'
@@ -76,7 +77,7 @@ for mess_name in all_messes:
         else:
             train_count = 0
 
-        obj = bpy.data.objects[ mess_name ] # blender object
+        obj = bpy.data.objects[ particle ] # blender object
         
         array_index_count += 1
         if array_index_count == array_index:
@@ -109,7 +110,7 @@ for mess_name in all_messes:
 
                 # remove final particle system so that it does not appear in next round
                 bm.remove_particle_system(surface_obj)
-                print( "Finished generating TEST data for foreign objects." )
+                print( f'Finished generating TEST data for {particle}. Shot: {key}' )
 
                 # 'TRAIN' DATA
                 for y in range(m_foreign):
@@ -128,13 +129,13 @@ for mess_name in all_messes:
                     bpy.ops.render.render(write_still=True)
                     train_count += 1
                 bm.remove_particle_system(surface_obj)
-                print( "Finished generating TRAIN data for foreign objects." )
+                print( f"Finished generating TRAIN data for {particle}. Shot: {key}" )
         
     ######################################################
     # DIRTY CAR
     ######################################################
 
-    if mess_name in dirt_objects:
+    if particle in dirt_objects:
         TRAIN_DIR = f'{output_str}/train/dirty'
         TEST_DIR = f'{output_str}/test/dirty'
         if (os.path.isdir(TEST_DIR) == True):
@@ -146,7 +147,7 @@ for mess_name in all_messes:
         else:
             train_count = 0
 
-        obj = bpy.data.objects[ mess_name ]
+        obj = bpy.data.objects[ particle ]
 
         array_index_count += 1
         if array_index_count == array_index:
@@ -174,7 +175,7 @@ for mess_name in all_messes:
                             bpy.context.scene.render.filepath = str( Path(TEST_DIR) / f'{FILE_NAME}_{str(test_count).zfill(6)}.png')
                             bpy.ops.render.render(write_still=True)
                             test_count += 1
-                print( "Finished generating TEST data for dirty car." )
+                print( f'Finished generating TEST data for {particle}. Shot: {key}' )
 
                 # 'TRAIN' DATA
                 for z in range(dirty_cars):
@@ -196,13 +197,13 @@ for mess_name in all_messes:
                             bpy.context.scene.render.filepath = str( Path(TRAIN_DIR) / f'{FILE_NAME}_{str(train_count).zfill(6)}.png')
                             bpy.ops.render.render(write_still=True)
                             train_count += 1
-                print( "Finished generating TRAIN data for dirty car." )
+                print( f'Finished generating TRAIN data for {particle}. Shot: {key}' )
 
     ######################################################
     # HAIRY CAR
     ######################################################
 
-    if mess_name == "hairy":
+    if particle == "hairy":
         TRAIN_DIR = f'{output_str}/train/hairy'
         TEST_DIR = f'{output_str}/test/hairy'
         if (os.path.isdir(TEST_DIR) == True):
@@ -213,7 +214,6 @@ for mess_name in all_messes:
             train_count = len([name for name in os.listdir( TRAIN_DIR ) if FILE_NAME in name])
         else:
             train_count = 0
-        obj = bpy.data.objects[ mess_name ]
 
         array_index_count += 1
         if array_index_count == array_index:
@@ -242,7 +242,7 @@ for mess_name in all_messes:
                         bpy.context.scene.render.filepath = str( Path(TEST_DIR) / f'{FILE_NAME}_{str(test_count).zfill(6)}.png')
                         bpy.ops.render.render(write_still=True)
                         test_count += 1
-            print( "Finished generating TEST data for hairy car." )
+            print( f'Finished generating TEST data for {particle}. Shot: {key}' )
 
             # 'TRAIN' DATA
             for z in range(hairy_cars):
@@ -268,4 +268,4 @@ for mess_name in all_messes:
                         bpy.context.scene.render.filepath = str( Path(TRAIN_DIR) / f'{FILE_NAME}_{str(train_count).zfill(6)}.png')
                         bpy.ops.render.render(write_still=True)
                         train_count += 1
-            print( "Finished generating TRAIN data for hairy car." )
+            print( f'Finished generating TRAIN data for {particle}. Shot: {key}' )

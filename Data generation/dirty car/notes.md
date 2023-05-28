@@ -12,5 +12,13 @@
 - This is OK for the testing dataset, but I need to be careful next time.
 
 
+**Results from running dirty_car_generator.py for the first time**
+- For all the sub-jobs it ran, it finished all of them! I'm not sure how many loops it would have to be for it to not finish in the time.
+- It didn't run "hairy" in all cases because there was a line in there that shouldn't have been.
+- I have changed the print statements so you know which sub-job ran which particle.
+
+
 **General**
 - Sometime, HPC would fail to load Blender or find CUDA etc and the job wouldn't run. It appears to be random, and simply running the script again gets it to work.
+- HPC limits the number of concurrent jobs (queued or running) to 50 per user. Therefore, I have to limit the number of objs etc accordingly.
+
