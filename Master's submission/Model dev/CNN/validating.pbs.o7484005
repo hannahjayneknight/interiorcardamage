@@ -1,0 +1,24 @@
+Model's state_dict:
+conv1.weight 	 torch.Size([12, 3, 3, 3])
+conv1.bias 	 torch.Size([12])
+bn1.weight 	 torch.Size([12])
+bn1.bias 	 torch.Size([12])
+bn1.running_mean 	 torch.Size([12])
+bn1.running_var 	 torch.Size([12])
+bn1.num_batches_tracked 	 torch.Size([])
+conv2.weight 	 torch.Size([20, 12, 3, 3])
+conv2.bias 	 torch.Size([20])
+conv3.weight 	 torch.Size([32, 20, 3, 3])
+conv3.bias 	 torch.Size([32])
+bn3.weight 	 torch.Size([32])
+bn3.bias 	 torch.Size([32])
+bn3.running_mean 	 torch.Size([32])
+bn3.running_var 	 torch.Size([32])
+bn3.num_batches_tracked 	 torch.Size([])
+fc.weight 	 torch.Size([17, 180000])
+fc.bias 	 torch.Size([17])
+Optimizer's state_dict:
+state 	 {}
+param_groups 	 [{'lr': 0.001, 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0.0001, 'amsgrad': False, 'maximize': False, 'foreach': None, 'capturable': False, 'differentiable': False, 'fused': None, 'params': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]}]
+Accuracy of the network on the test images: 75 %
+ Test Accuracy: 0.75
