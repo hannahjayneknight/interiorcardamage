@@ -20,11 +20,11 @@ CAMs = bm.getallCAMs()
 '''
 ---------------------------  VARIABLES TO CHANGE  -----------------------
 '''
-output_str = "../Data/"
 n = 6 # test data 
 m = 25 # train data
 background_dir = "../Backgrounds/" # directory where background images are
-CAR_NAME = "VWUP"
+CAR_NAME = "VWUP-black"
+output_str = f'../{CAR_NAME}/'
 
 '''
 ---------------------------  SCRIPT HERE (DON'T CHANGE)  -------------------
