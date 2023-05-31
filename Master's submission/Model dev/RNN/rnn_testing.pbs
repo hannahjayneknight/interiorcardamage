@@ -1,0 +1,8 @@
+#PBS -l walltime=01:30:00
+#PBS -l select=1:ncpus=4:mem=196gb:ngpus=1:gpu_type=RTX6000
+
+module load anaconda3/personal
+source activate interiorcardamage
+
+cd $PBS_O_WORKDIR
+python rnn_testing.py

@@ -4,6 +4,7 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
+from rnn import RNN
 
 # Set device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -36,32 +37,6 @@ train_loader=DataLoader(
     pin_memory=True,
 )
 
-# Recurrent neural network (RNN)
-class RNN(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, num_classes):
-        super(RNN, self).__init__()
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.rnn = nn.RNN(input_size, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size, num_classes)
-
-    def forwardOLD(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-
-        out, _ = self.rnn(x, h0.reshape(self.num_layers, x.size(0), self.hidden_size))
-        out = self.fc(out[:, -1, :])
-
-        return out
-
-    def forward(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-
-        out, _ = self.rnn(x.unsqueeze(1), h0)
-        out = self.fc(out[:, -1, :])
-
-        return out
-
-
 # Initialize the model
 model = RNN(input_size, hidden_size, num_layers, num_classes).to(device)
 
@@ -88,4 +63,5 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
 
+    torch.save(model.state_dict(),'rnn_foreign_obj_vs_clear.model')
     print(f"Epoch [{epoch}], Loss: {loss.item():.4f}")
