@@ -47,19 +47,20 @@ net.eval()
 '''
 --------------------------------- Testing -----------------------------------------
 '''
-correct = 0
-total = 0
 
-
+net.eval()
 with torch.no_grad():
-    # method 1
-    for data in loader:
-        inputs, labels = data[0].to(device), data[1].to(device)
+    correct = 0
+    total = 0
+    for images, labels in loader:
+        images = images.to(device)
+        labels = labels.to(device)
         images = images.view(-1, input_size)
-        outputs = net(inputs)
+        outputs = net(images)
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
-    print(f'Accuracy of the network on the test images: {100 * correct // total} %')
+    accuracy = 100 * correct / total
+    print(f"Test Accuracy: {accuracy:.2f}%")
 
