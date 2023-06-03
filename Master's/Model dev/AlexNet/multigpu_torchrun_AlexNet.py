@@ -6,7 +6,8 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import datasets
 import torchvision.transforms as transforms
 import pathlib
-
+from torch.utils.data import Subset
+import numpy as np
 import torch.multiprocessing as mp
 from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -98,13 +99,18 @@ def load_train_objs():
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
+    
     train_set = datasets.ImageFolder(root=train_path, transform=transformer)
+
+    n = 1275
+    train_dataset_subset = Subset(train_set, np.random.choice(len(train_set), n, replace=False))
+
     root=pathlib.Path(train_path)
     classes=sorted([j.name.split('/')[-1] for j in root.iterdir()])
     alexnet = AlexNet(num_classes=len(classes)) #.to(device)
     optimizer = torch.optim.Adam(params=alexnet.parameters(), lr=0.0001)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
-    return train_set, alexnet, optimizer, lr_scheduler
+    return train_dataset_subset, alexnet, optimizer, lr_scheduler
 
 
 def prepare_dataloader(dataset: Dataset, batch_size: int):

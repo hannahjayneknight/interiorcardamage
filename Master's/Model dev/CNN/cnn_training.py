@@ -4,9 +4,11 @@ import torch
 import torch.nn as nn
 from torchvision.transforms import transforms
 from torch.utils.data import DataLoader
+from torch.utils.data import Subset
 from torch.optim import Adam
 import torchvision
 import pathlib
+import numpy as np
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 train_transformer=transforms.Compose([
@@ -16,9 +18,16 @@ train_transformer=transforms.Compose([
     transforms.Normalize([0.5,0.5,0.5], # 0-1 to [-1,1] , formula (x-mean)/std
                         [0.5,0.5,0.5])
 ])
-train_path = '../Data3/train'
-train_loader=torch.utils.data.DataLoader(
-    torchvision.datasets.ImageFolder(root=train_path, transform=train_transformer),
+train_path = '../Data/train'
+
+train_dataset = torchvision.datasets.ImageFolder(root=train_path, transform=train_transformer)
+
+n = 1275
+
+train_dataset_subset = Subset(train_dataset, np.random.choice(len(train_dataset), n, replace=False))
+
+train_loader=DataLoader(
+    train_dataset_subset,
     batch_size=32, shuffle=True, num_workers=4,
     pin_memory=True,
 )
